@@ -3,11 +3,18 @@ package cs455.overlay.tcp;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public class TCPServerThread {
+public class TCPServerThread extends Thread {
 	//wrapper class for the server socket of each messaging node and registry
-	private ServerSocket serve;
+	private ServerSocket server;
 	
 	public TCPServerThread() throws IOException{
-		this.serve = new ServerSocket();
+		this.server = new ServerSocket();
+	}
+	
+	@Override
+	public void run() {
+		while (!interrupted()) {
+			server.accept();
+		}
 	}
 }
