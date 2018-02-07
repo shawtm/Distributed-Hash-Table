@@ -14,7 +14,12 @@ public class TCPServerThread extends Thread {
 	@Override
 	public void run() {
 		while (!interrupted()) {
-			server.accept();
+			try {
+				server.accept();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

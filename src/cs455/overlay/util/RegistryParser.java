@@ -12,4 +12,10 @@ public class RegistryParser extends InteractiveCommandParser {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void parse() {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -22,6 +22,5 @@ public class Node {
 			e.printStackTrace();
 		}
 		this.connections = new TCPConnectionsCache(this.server);
-		this.parser = new InteractiveCommandParser();
 	}
 }
