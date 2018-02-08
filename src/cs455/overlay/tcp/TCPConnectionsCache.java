@@ -14,9 +14,9 @@ public class TCPConnectionsCache extends Thread {
 	//blocking queue?
 	protected BlockingQueue<Event> events;
 	
-	public TCPConnectionsCache(TCPServerThread server){
+	public TCPConnectionsCache(TCPServerThread server, BlockingQueue<Event> events){
 		this.server = server;
-		this.events = new ArrayBlockingQueue(1024);
+		this.events = events;
 	}
 	
 	@Override

@@ -1,18 +1,23 @@
 package cs455.overlay.node;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
-import cs455.overlay.tcp.*;
+import cs455.overlay.tcp.TCPConnectionsCache;
+import cs455.overlay.tcp.TCPServerThread;
 import cs455.overlay.util.InteractiveCommandParser;
+import cs455.overlay.wireFormats.Event;
 
 public class Node {
 	//parser
-	InteractiveCommandParser parser;
+	protected InteractiveCommandParser parser;
 	//server
-	TCPServerThread server;
+	protected TCPServerThread server;
 	//connections cache
-	TCPConnectionsCache connections;
+	protected TCPConnectionsCache connections;
+	//queue of events
+	protected BlockingQueue<Event> events;
 	
 	public Node(){
 		try {
@@ -21,6 +26,7 @@ public class Node {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.connections = new TCPConnectionsCache(this.server);
+		this.events = new ArrayBlockingQueue<Event>(1024);
+		this.connections = new TCPConnectionsCache(this.server, this.events);
 	}
 }
