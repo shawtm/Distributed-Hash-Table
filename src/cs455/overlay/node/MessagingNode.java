@@ -11,7 +11,7 @@ public class MessagingNode extends Node {
 		this.parser = new MessagingParser();
 		register();
 		rt = new RoutingTable();
-		this.parser.run();
+		this.parser.start();
 		this.quit();
 	}
 	

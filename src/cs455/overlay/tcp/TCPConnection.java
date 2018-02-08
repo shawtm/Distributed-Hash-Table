@@ -2,20 +2,20 @@ package cs455.overlay.tcp;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.BlockingQueue;
+
+import cs455.overlay.wireFormats.Event;
 
 public class TCPConnection {
 	//get id?
 	private TCPReceiver rec;
 	private TCPSender send;
 	
-	public TCPConnection(Socket socket) throws IOException{
-		this.rec = new TCPReceiver(socket);
+	public TCPConnection(Socket socket, BlockingQueue<Event> events) throws IOException{
+		this.rec = new TCPReceiver(socket, events);
 		this.send = new TCPSender(socket);
 	}
 	
-	public byte[] getData(){
-		return null;
-	}
 	public void sendData(){
 		
 	}

@@ -2,15 +2,23 @@ package cs455.overlay.tcp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+import cs455.overlay.wireFormats.Event;
 
 public class TCPConnectionsCache extends Thread {
 	protected ArrayList<TCPConnection> receivers;
 	protected ArrayList<TCPConnection> senders;
 	protected TCPServerThread server;
 	//blocking queue?
+	protected BlockingQueue<Event> events;
+	
 	public TCPConnectionsCache(TCPServerThread server){
 		this.server = server;
+		this.events = new ArrayBlockingQueue(1024);
 	}
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
@@ -21,7 +29,7 @@ public class TCPConnectionsCache extends Thread {
 		// poll server for receiver
 		while(!interrupted()) {
 			try {
-				receivers.add(new TCPConnection(server.getSocket()));
+				receivers.add(new TCPConnection(this.server.getSocket(), this.events));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
