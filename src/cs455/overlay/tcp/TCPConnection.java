@@ -24,5 +24,6 @@ public class TCPConnection {
 	}
 	public void close() {
 		//TODO
+		this.send.interrupt();
 	}
 }

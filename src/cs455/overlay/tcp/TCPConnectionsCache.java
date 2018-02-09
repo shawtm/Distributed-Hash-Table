@@ -10,6 +10,7 @@ import cs455.overlay.wireFormats.Event;
 public class TCPConnectionsCache extends Thread {
 	protected ArrayList<TCPConnection> receivers;
 	protected ArrayList<TCPConnection> senders;
+	protected TCPConnection registryConn;
 	protected TCPServerThread server;
 	//blocking queue?
 	protected BlockingQueue<Event> events;
