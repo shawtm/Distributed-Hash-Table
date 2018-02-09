@@ -6,6 +6,7 @@ import cs455.overlay.util.MessagingParser;
 public class MessagingNode extends Node {
 	private RoutingTable rt;
 	
+	
 	public MessagingNode(){
 		super();
 		this.parser = new MessagingParser();
@@ -21,6 +22,11 @@ public class MessagingNode extends Node {
 	}
 	
 	private void register(){
+		
+	}
+	
+	//first argument is the ip address of the registry and second is the port
+	public static void main(String[] args) {
 		
 	}
 }

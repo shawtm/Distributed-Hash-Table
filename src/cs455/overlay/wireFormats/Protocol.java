@@ -5,4 +5,6 @@ public abstract class Protocol implements Event{
 	
 	public abstract byte[] marshallBytes();
 	
+	public abstract Event unmarshallBytes(byte[] bytes);
+	
 }
