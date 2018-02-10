@@ -9,10 +9,10 @@ public class MessagingNode extends Node {
 	
 	public MessagingNode(){
 		super();
-		this.parser = new MessagingParser();
+		MessagingParser parser = new MessagingParser(this);
 		register();
 		rt = new RoutingTable();
-		this.parser.start();
+		parser.start();
 		this.quit();
 	}
 	

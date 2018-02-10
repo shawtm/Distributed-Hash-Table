@@ -10,8 +10,6 @@ import cs455.overlay.util.InteractiveCommandParser;
 import cs455.overlay.wireFormats.Event;
 
 public class Node {
-	//parser
-	protected InteractiveCommandParser parser;
 	//server
 	protected TCPServerThread server;
 	//connections cache

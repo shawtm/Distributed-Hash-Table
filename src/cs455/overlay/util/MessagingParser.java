@@ -1,10 +1,13 @@
 package cs455.overlay.util;
 
+import cs455.overlay.node.MessagingNode;
+
 public class MessagingParser extends InteractiveCommandParser {
+	private MessagingNode node;
 	
-	
-	public MessagingParser() {
+	public MessagingParser(MessagingNode node) {
 		super();
+		this.node = node;
 	}
 
 	@Override

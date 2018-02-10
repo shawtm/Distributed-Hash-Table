@@ -5,6 +5,7 @@ import java.util.Random;
 
 import cs455.overlay.routing.RegistryTable;
 import cs455.overlay.routing.RoutingTable;
+import cs455.overlay.tcp.TCPConnection;
 import cs455.overlay.util.RegistryParser;
 
 public class Registry extends Node {
@@ -16,22 +17,23 @@ public class Registry extends Node {
 	public Registry(){
 		super();
 		this.table = new RegistryTable();
-		this.parser = new RegistryParser();
+		RegistryParser parser = new RegistryParser(this);
+		parser.start();
 		this.registeredIDs = new ArrayList<>();
 		this.rand = new Random();
 		this.rts = new ArrayList<>();
 	}
 	
-	public void register(int port, byte[] ipAddress){
+	public void register(int port, byte[] ipAddress, TCPConnection conn){
 		int id = addID();
-		table.registerNode(id, port, ipAddress);
-		//send back id
+		//Register Node
+		table.registerNode(id, port, ipAddress, conn);
+		// TODO send back id
 	}
 	
 	public void degregister(int id){
 		//remove id form registeredIDs
 		table.deregisterNode(id);
-		//TODO close connection
 	}
 	
 	private int addID(){
@@ -48,5 +50,9 @@ public class Registry extends Node {
 	}
 	public void printRoutingTables() {
 		System.out.println(this.rts);
+	}
+	
+	public static void main(String[] args) {
+		//TODO
 	}
 }

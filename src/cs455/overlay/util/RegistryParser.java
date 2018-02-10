@@ -1,10 +1,13 @@
 package cs455.overlay.util;
 
+import cs455.overlay.node.Registry;
+
 public class RegistryParser extends InteractiveCommandParser {
+	private Registry registry;
 	
-	
-	public RegistryParser() {
+	public RegistryParser(Registry registry) {
 		super();
+		this.registry = registry;
 	}
 
 	@Override
