@@ -30,7 +30,7 @@ public class TCPConnectionsCache extends Thread {
 		// poll server for receiver
 		while(!interrupted()) {
 			try {
-				receivers.add(new TCPConnection(this.server.getSocket(), this.events));
+				receivers.add(new TCPConnection(this.server.getSocket(), this.events, TCPConnection.Type.RECEIVER));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -42,9 +42,10 @@ public class TCPConnectionsCache extends Thread {
 		for(TCPConnection conn: senders) {
 			conn.close();
 		}
-		for(TCPConnection conn: receivers) {
-			conn.close();
-		}
+		//shouldnt need this as the connections should close when the senders close
+//		for(TCPConnection conn: receivers) {
+//			conn.close();
+//		}
 	}
 	
 }

@@ -7,23 +7,37 @@ import java.util.concurrent.BlockingQueue;
 import cs455.overlay.wireFormats.Event;
 
 public class TCPConnection {
-	//get id?
 	private TCPReceiver rec;
 	private TCPSender send;
 	private Thread receiver;
+	private Type type;
 	
-	public TCPConnection(Socket socket, BlockingQueue<Event> events) throws IOException{
+	public enum Type {SENDER, RECEIVER, MESSAGING_TO_REGISTRY, REGISTRY_TO_MESSAGING};
+	
+	public TCPConnection(Socket socket, BlockingQueue<Event> events, Type type) throws IOException{
+		this.type = type;
 		this.rec = new TCPReceiver(socket, events);
+		if (this.type != Type.RECEIVER) {
+			this.send = new TCPSender(socket);
+			this.send.start();
+		}
+		if (this.type != Type.SENDER) {
+			this.receiver = new Thread(this.rec);
+			receiver.start();
+		}
+	}
+	public TCPConnection(Socket socket) throws IOException {
+		this.type = Type.SENDER;
 		this.send = new TCPSender(socket);
-		this.receiver = new Thread(this.rec);
-		receiver.start();
 		this.send.start();
 	}
+	
 	public void sendData(Event event){
+		//TODO add checks for this not being a receiving thread
 		this.send.addToSend(event);
 	}
 	public void close() {
-		//TODO
+		// receivers will close when senders close (maybe?)
 		this.send.interrupt();
 	}
 }
