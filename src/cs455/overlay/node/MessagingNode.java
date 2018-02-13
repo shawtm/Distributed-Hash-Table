@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 
 import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.tcp.TCPConnection;
+import cs455.overlay.tcp.TCPConnectionsCache;
 import cs455.overlay.util.MessagingParser;
 import cs455.overlay.wireFormats.Event;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
@@ -18,6 +19,7 @@ public class MessagingNode extends Node {
 	
 	public MessagingNode(String ip, int port){
 		super();
+		this.connections = new TCPConnectionsCache(this.server, this.events, TCPConnectionsCache.Type.MESSAGINGNODE);
 		MessagingParser parser = new MessagingParser(this);
 		register(ip, port);
 		rt = new RoutingTable();

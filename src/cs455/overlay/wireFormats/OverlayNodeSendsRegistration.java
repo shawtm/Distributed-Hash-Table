@@ -22,6 +22,9 @@ public class OverlayNodeSendsRegistration extends Protocol {
 		this.ip = ip;
 		this.port = port;
 	}
+	public OverlayNodeSendsRegistration(byte[] bytes) {
+		this.unmarshallBytes(bytes);
+	}
 	
 	@Override
 	public byte getType() {
@@ -33,6 +36,9 @@ public class OverlayNodeSendsRegistration extends Protocol {
 	}
 	public int getLength() {
 		return this.length;
+	}
+	public int getPort() {
+		return this.port;
 	}
 	@Override
 	public byte[] getBytes() {
@@ -77,7 +83,7 @@ public class OverlayNodeSendsRegistration extends Protocol {
 		try {
 			type = (byte) din.readInt();
 			length = din.readInt();
-			byte[] ip = new byte[length];
+			ip = new byte[length];
 			din.readFully(ip);
 			port = din.readInt();
 			baInputStream.close();
