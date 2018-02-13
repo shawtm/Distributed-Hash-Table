@@ -11,6 +11,7 @@ import cs455.overlay.wireFormats.Event;
 public class TCPConnectionsCache extends Thread {
 	protected ArrayList<TCPConnection> receivers;
 	protected ArrayList<TCPConnection> senders;
+	private ArrayList<TCPConnection> newConns;
 	protected TCPConnection registryConn;
 	protected TCPServerThread server;
 	private Type type;
@@ -22,6 +23,9 @@ public class TCPConnectionsCache extends Thread {
 	public enum Type {REGISTRY, MESSAGINGNODE}
 	
 	public TCPConnectionsCache(TCPServerThread server, LinkedBlockingQueue<Event> events, Type type){
+		this.receivers = new ArrayList<>();
+		this.senders = new ArrayList<>();
+		this.newConns = new ArrayList<>();
 		this.server = server;
 		this.events = events;
 		this.type = type;
@@ -49,8 +53,11 @@ public class TCPConnectionsCache extends Thread {
 			try {
 				if(this.type == Type.MESSAGINGNODE)
 					receivers.add(new TCPConnection(this.server.getSocket(), this.events, TCPConnection.Type.RECEIVER));
-				if(this.type == Type.REGISTRY)
-					senders.add(new TCPConnection(this.server.getSocket(), this.events, TCPConnection.Type.REGISTRY_TO_MESSAGING));
+				if(this.type == Type.REGISTRY) {
+					TCPConnection newconn =new TCPConnection(this.server.getSocket(), this.events, TCPConnection.Type.REGISTRY_TO_MESSAGING);
+					senders.add(newconn);
+					this.newConns.add(newconn);
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -78,5 +85,8 @@ public class TCPConnectionsCache extends Thread {
 	}
 	public int getPort() {
 		return this.port;
+	}
+	public ArrayList<TCPConnection> getNewConns(){
+		return this.newConns;
 	}
 }

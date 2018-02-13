@@ -18,6 +18,9 @@ public class RegistryReportsRegistrationStatus extends Protocol {
 		this.id = id;
 		this.info = info;
 	}
+	public RegistryReportsRegistrationStatus(byte[] bytes) {
+		this.unmarshallBytes(bytes);
+	}
 	@Override
 	public byte getType() {
 		return this.type;

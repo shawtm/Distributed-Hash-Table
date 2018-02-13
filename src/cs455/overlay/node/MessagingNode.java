@@ -12,10 +12,11 @@ import cs455.overlay.util.MessagingParser;
 import cs455.overlay.wireFormats.Event;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireFormats.Protocol;
+import cs455.overlay.wireFormats.RegistryReportsRegistrationStatus;
 
 public class MessagingNode extends Node {
 	private RoutingTable rt;
-	
+	private int id;
 	
 	public MessagingNode(String ip, int port){
 		super();
@@ -24,9 +25,28 @@ public class MessagingNode extends Node {
 		register(ip, port);
 		rt = new RoutingTable();
 		parser.start();
+	}
+	@Override
+	public void run() {
+		while(!interrupted()) {
+			try {
+				Event ev = this.events.take();
+				switch (ev.getType()) {
+				case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
+					this.finishRegistration(ev);
+				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		this.quit();
 	}
-	
+	private void finishRegistration(Event event) {
+		RegistryReportsRegistrationStatus re = new RegistryReportsRegistrationStatus(event.getBytes());
+		this.id = re.getID();
+		System.out.println(re.getInfo());
+	}
 	public void quit(){
 		//deregister
 		//close connections
@@ -66,5 +86,6 @@ public class MessagingNode extends Node {
 			System.out.println("incorrect number of arguments");
 		}
 		MessagingNode m = new MessagingNode(args[0], Integer.parseInt(args[1]));
+		m.run();
 	}
 }

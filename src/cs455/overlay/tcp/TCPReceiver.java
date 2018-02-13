@@ -8,12 +8,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import cs455.overlay.wireFormats.Event;
 import cs455.overlay.wireFormats.EventFactory;
+import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
+import cs455.overlay.wireFormats.Protocol;
 
-public class TCPReceiver implements Runnable {
+public class TCPReceiver extends Thread {
 	//Wrapper class for the receiving socket for each messaging
 	private Socket socket;
 	private DataInputStream din;
 	private LinkedBlockingQueue<Event> events;
+	private int port = -1;
+	private byte[] ip = null;
 
 	public TCPReceiver(Socket socket, LinkedBlockingQueue<Event> events) throws IOException {
 		this.socket = socket;
@@ -29,7 +33,13 @@ public class TCPReceiver implements Runnable {
 				byte[] data = new byte[dataLength];
 				din.readFully(data, 0, dataLength);
 				try {
-					events.put(EventFactory.getEvent(data));
+					Event event = EventFactory.getEvent(data);
+					if(event.getType() == Protocol.OVERLAY_NODE_SENDS_REGISTRATION) {
+						OverlayNodeSendsRegistration on = new OverlayNodeSendsRegistration(event.getBytes());
+						this.port = on.getPort();
+						this.ip = on.getIP();
+					}
+					events.put(event);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -42,5 +52,11 @@ public class TCPReceiver implements Runnable {
 				break;
 			}
 		}
+	}
+	public byte[] getIP() {
+		return this.ip;
+	}
+	public int getPort() {
+		return this.port;
 	}
 }

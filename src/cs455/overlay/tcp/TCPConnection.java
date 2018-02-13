@@ -9,7 +9,6 @@ import cs455.overlay.wireFormats.Event;
 public class TCPConnection {
 	private TCPReceiver rec;
 	private TCPSender send;
-	private Thread receiver;
 	private Type type;
 	
 	public enum Type {SENDER, RECEIVER, MESSAGING_TO_REGISTRY, REGISTRY_TO_MESSAGING};
@@ -22,8 +21,7 @@ public class TCPConnection {
 		}
 		if (this.type != Type.SENDER) {
 			this.rec = new TCPReceiver(socket, events);
-			this.receiver = new Thread(this.rec);
-			receiver.start();
+			this.rec.start();
 		}
 	}
 	public TCPConnection(Socket socket) throws IOException {
@@ -39,5 +37,11 @@ public class TCPConnection {
 	public void close() {
 		// receivers will close when senders close (maybe?)
 		this.send.interrupt();
+	}
+	public int getPort() {
+		return this.rec.getPort();
+	}
+	public byte[] getIP() {
+		return this.rec.getIP();
 	}
 }
