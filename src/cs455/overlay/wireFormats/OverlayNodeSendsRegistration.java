@@ -16,21 +16,11 @@ public class OverlayNodeSendsRegistration extends Protocol {
 	private byte[] ip;
 	private int port;
 	
-	public OverlayNodeSendsRegistration(byte[] bytes) {
-		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
-		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
-		try {
-			type = (byte) din.readInt();
-			length = din.readInt();
-			byte[] ip = new byte[length];
-			din.readFully(ip);
-			port = din.readInt();
-			baInputStream.close();
-			din.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public OverlayNodeSendsRegistration(byte type, int length, byte[] ip, int port) {
+		this.type = type;
+		this.length = length;
+		this.ip = ip;
+		this.port = port;
 	}
 	
 	@Override
@@ -82,8 +72,21 @@ public class OverlayNodeSendsRegistration extends Protocol {
 
 	@Override
 	public Event unmarshallBytes(byte[] bytes) {
-		// TODO Auto-generated method stub
-		return null;
+		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
+		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
+		try {
+			type = (byte) din.readInt();
+			length = din.readInt();
+			byte[] ip = new byte[length];
+			din.readFully(ip);
+			port = din.readInt();
+			baInputStream.close();
+			din.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return this;
 	}
 
 }

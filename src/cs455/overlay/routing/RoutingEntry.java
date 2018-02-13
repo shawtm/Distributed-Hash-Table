@@ -13,4 +13,7 @@ public class RoutingEntry {
 	public int getID(){
 		return this.id;
 	}
+	public TCPConnection getConn() {
+		return this.conn;
+	}
 }

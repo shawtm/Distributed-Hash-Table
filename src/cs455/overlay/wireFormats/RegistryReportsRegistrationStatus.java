@@ -13,22 +13,10 @@ public class RegistryReportsRegistrationStatus extends Protocol {
 	private byte[] information;
 	private String info;
 	
-	public RegistryReportsRegistrationStatus(byte[] bytes) {
-		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
-		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
-		try {
-			type = (byte) din.readInt();
-			id = din.readInt();
-			length = din.readInt();
-			byte[] information = new byte[length];
-			din.readFully(information);
-			info = new String(information);
-			baInputStream.close();
-			din.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public RegistryReportsRegistrationStatus(byte type, int id, String info) {
+		this.type = type;
+		this.id = id;
+		this.info = info;
 	}
 	@Override
 	public byte getType() {
@@ -54,8 +42,22 @@ public class RegistryReportsRegistrationStatus extends Protocol {
 
 	@Override
 	public Event unmarshallBytes(byte[] bytes) {
-		// TODO Auto-generated method stub
-		return null;
+		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
+		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
+		try {
+			type = (byte) din.readInt();
+			id = din.readInt();
+			length = din.readInt();
+			information = new byte[length];
+			din.readFully(information);
+			info = new String(information);
+			baInputStream.close();
+			din.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return this;
 	}
 
 }

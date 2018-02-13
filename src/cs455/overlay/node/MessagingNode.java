@@ -8,6 +8,9 @@ import java.net.UnknownHostException;
 import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.tcp.TCPConnection;
 import cs455.overlay.util.MessagingParser;
+import cs455.overlay.wireFormats.Event;
+import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
+import cs455.overlay.wireFormats.Protocol;
 
 public class MessagingNode extends Node {
 	private RoutingTable rt;
@@ -17,7 +20,7 @@ public class MessagingNode extends Node {
 		super();
 		MessagingParser parser = new MessagingParser(this);
 		register(ip, port);
-		//rt = new RoutingTable();
+		rt = new RoutingTable();
 		parser.start();
 		this.quit();
 	}
@@ -37,8 +40,15 @@ public class MessagingNode extends Node {
 		try {
 			Socket s = new Socket(InetAddress.getLocalHost(), port);
 			System.out.println("Connected Successfully");
+			//Create Connection to store socket
 			TCPConnection registryConn = new TCPConnection(s, this.events, TCPConnection.Type.MESSAGING_TO_REGISTRY);
 			this.connections.setRegistryConn(registryConn);
+			this.rt.addRegistryConn(registryConn);
+			//create and send event to register with registry\
+			int thisPort = this.connections.getPort();
+			byte[] thisIP = this.connections.getIP();
+			Event e = new OverlayNodeSendsRegistration(Protocol.OVERLAY_NODE_SENDS_REGISTRATION, thisIP.length, thisIP, thisPort);
+			rt.sendDataToRegistry(e);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
