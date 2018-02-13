@@ -30,5 +30,7 @@ public class RegistryEntry {
 	public void close() {
 		conn.close();
 	}
-	
+	public TCPConnection getConnection() {
+		return this.conn;
+	}
 }

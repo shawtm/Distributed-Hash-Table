@@ -89,4 +89,7 @@ public class TCPConnectionsCache extends Thread {
 	public ArrayList<TCPConnection> getNewConns(){
 		return this.newConns;
 	}
+	public void removeConnection(TCPConnection conn) {
+		this.senders.remove(conn);
+	}
 }

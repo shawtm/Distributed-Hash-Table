@@ -10,6 +10,7 @@ import cs455.overlay.tcp.TCPConnection;
 import cs455.overlay.tcp.TCPConnectionsCache;
 import cs455.overlay.util.MessagingParser;
 import cs455.overlay.wireFormats.Event;
+import cs455.overlay.wireFormats.OverlayNodeSendsDeregistration;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireFormats.Protocol;
 import cs455.overlay.wireFormats.RegistryReportsRegistrationStatus;
@@ -34,6 +35,10 @@ public class MessagingNode extends Node {
 				switch (ev.getType()) {
 				case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
 					this.finishRegistration(ev);
+					break;
+				case Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS:
+					this.interrupt();
+					break;
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -49,6 +54,7 @@ public class MessagingNode extends Node {
 	}
 	public void quit(){
 		//deregister
+		this.deregister();
 		//close connections
 		this.connections.interrupt();
 		System.out.println("Exiting now");
@@ -56,6 +62,12 @@ public class MessagingNode extends Node {
 	public void printCounters() {
 		//TODO
 		return;
+	}
+	private void deregister() {
+		int thisPort = this.connections.getPort();
+		byte[] thisIP = this.connections.getIP();
+		Event e = new OverlayNodeSendsDeregistration(Protocol.OVERLAY_NODE_SENDS_REGISTRATION, thisIP.length, thisIP, thisPort, this.id);
+		rt.sendDataToRegistry(e);
 	}
 	private void register(String ip, int port){
 		System.out.println("Attempting to connect to Registry at " + ip + " on port " + port + "...");

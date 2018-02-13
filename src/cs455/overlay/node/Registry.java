@@ -9,6 +9,7 @@ import cs455.overlay.tcp.TCPConnection;
 import cs455.overlay.tcp.TCPConnectionsCache;
 import cs455.overlay.util.RegistryParser;
 import cs455.overlay.wireFormats.Event;
+import cs455.overlay.wireFormats.OverlayNodeSendsDeregistration;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireFormats.Protocol;
 import cs455.overlay.wireFormats.RegistryReportsRegistrationStatus;
@@ -37,9 +38,14 @@ public class Registry extends Node {
 			try {
 				ev = this.events.take();
 				switch (ev.getType()) {
-				case Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS:
+				case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
 					OverlayNodeSendsRegistration on = new OverlayNodeSendsRegistration(ev.getBytes());
 					this.register(on.getPort(), on.getIP());
+					break;
+				case Protocol.OVERLAY_NODE_SENDS_DEREGISTRATION:
+					OverlayNodeSendsDeregistration on1 = new OverlayNodeSendsDeregistration(ev.getBytes());
+					this.deregister(on1);
+					break;
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -48,8 +54,14 @@ public class Registry extends Node {
 		}
 		System.out.println("Exiting now");
 	}
-	
-	public void register(int port, byte[] ipAddress){
+	private void deregister(OverlayNodeSendsDeregistration on) {
+		//TODO add checks
+		this.registeredIDs.remove(on.getID());
+		TCPConnection conn = table.getConnection(on.getID());
+		this.table.deregisterNode(on.getID());
+		this.connections.removeConnection(conn);
+	}
+	private void register(int port, byte[] ipAddress){
 		int id = addID();
 		//find connection
 		TCPConnection conn = null;
