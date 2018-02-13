@@ -1,7 +1,6 @@
 package cs455.overlay.wireFormats;
 
 public abstract class Protocol implements Event{
-	private byte messageType;
 	
 	public static final byte OVERLAY_NODE_SENDS_REGISTRATION = 2;
 	public static final byte REGISTRY_REPORTS_REGISTRATION_STATUS = 3;

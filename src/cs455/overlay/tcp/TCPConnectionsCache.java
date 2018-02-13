@@ -17,7 +17,9 @@ public class TCPConnectionsCache extends Thread {
 		this.server = server;
 		this.events = events;
 	}
-	
+	public void setRegistryConn(TCPConnection registryConn) {
+		this.registryConn = registryConn;
+	}
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
@@ -48,5 +50,4 @@ public class TCPConnectionsCache extends Thread {
 //			conn.close();
 //		}
 	}
-	
 }

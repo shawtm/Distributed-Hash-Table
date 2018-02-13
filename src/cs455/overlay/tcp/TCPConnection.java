@@ -16,12 +16,12 @@ public class TCPConnection {
 	
 	public TCPConnection(Socket socket, LinkedList<Event> events, Type type) throws IOException{
 		this.type = type;
-		this.rec = new TCPReceiver(socket, events);
 		if (this.type != Type.RECEIVER) {
 			this.send = new TCPSender(socket);
 			this.send.start();
 		}
 		if (this.type != Type.SENDER) {
+			this.rec = new TCPReceiver(socket, events);
 			this.receiver = new Thread(this.rec);
 			receiver.start();
 		}

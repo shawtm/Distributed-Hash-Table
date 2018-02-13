@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import cs455.overlay.routing.RoutingTable;
+import cs455.overlay.tcp.TCPConnection;
 import cs455.overlay.util.MessagingParser;
 
 public class MessagingNode extends Node {
@@ -36,6 +37,8 @@ public class MessagingNode extends Node {
 		try {
 			Socket s = new Socket(InetAddress.getLocalHost(), port);
 			System.out.println("Connected Successfully");
+			TCPConnection registryConn = new TCPConnection(s, this.events, TCPConnection.Type.MESSAGING_TO_REGISTRY);
+			this.connections.setRegistryConn(registryConn);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
