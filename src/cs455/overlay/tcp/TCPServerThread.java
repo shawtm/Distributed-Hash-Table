@@ -1,44 +1,43 @@
 package cs455.overlay.tcp;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class TCPServerThread extends Thread {
 	//wrapper class for the server socket of each messaging node and registry
 	private ServerSocket server;
-	private BlockingQueue<Socket> sockets;
+	private LinkedBlockingQueue<Socket> sockets;
 	private Random r;
 	private int port;
 	
 	public TCPServerThread() throws IOException{
 		this.r = new Random();
 		this.startSocket();
-		sockets = new ArrayBlockingQueue<Socket>(10);
+		sockets = new LinkedBlockingQueue<Socket>();
 	}
 	
 	@Override
 	public void run() {
+		System.out.println("Starting server on port: "+ this.port);
 		while (!interrupted()) {
+			Socket newSocket;
 			try {
-				Socket newSocket = server.accept();
+				newSocket = server.accept();
 				sockets.put(newSocket);
-			} catch (IOException | InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("connected to a node");
+			} catch (IOException e) {
+			} catch (InterruptedException e) {
 			}
 		}
+		System.out.println("Server exiting...");
 	}
 	
-	public Socket getSocket() {
-		try {
-			return sockets.take();
-		} catch (InterruptedException e) {
-			return null;
-		}
+	public Socket getSocket() throws InterruptedException {
+		return sockets.take();
 	}
 	
 	public int getPort() {
@@ -50,7 +49,7 @@ public class TCPServerThread extends Thread {
 		while (!success) {
 			this.port = this.generatePort();
 			try {
-				this.server = new ServerSocket(this.port);
+				this.server = new ServerSocket(this.port, 0, InetAddress.getLocalHost());
 				success = true;
 			} catch (IOException e) { //port cannot be opened on that port
 			}
@@ -58,5 +57,14 @@ public class TCPServerThread extends Thread {
 	}
 	private int generatePort() {
 		return (r.nextInt(64511) + 1024);
+	}
+
+	public void shutdown() {
+		try {
+			server.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

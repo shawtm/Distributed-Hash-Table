@@ -1,9 +1,7 @@
 package cs455.overlay.tcp;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.LinkedList;
 
 import cs455.overlay.wireFormats.Event;
 
@@ -13,9 +11,9 @@ public class TCPConnectionsCache extends Thread {
 	protected TCPConnection registryConn;
 	protected TCPServerThread server;
 	//blocking queue?
-	protected BlockingQueue<Event> events;
+	protected LinkedList<Event> events;
 	
-	public TCPConnectionsCache(TCPServerThread server, BlockingQueue<Event> events){
+	public TCPConnectionsCache(TCPServerThread server, LinkedList<Event> events){
 		this.server = server;
 		this.events = events;
 	}
@@ -29,19 +27,22 @@ public class TCPConnectionsCache extends Thread {
 		
 		// poll server for receiver
 		while(!interrupted()) {
-			try {
-				receivers.add(new TCPConnection(this.server.getSocket(), this.events, TCPConnection.Type.RECEIVER));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				receivers.add(new TCPConnection(this.server.getSocket(), this.events, TCPConnection.Type.RECEIVER));
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 		//stop server
+		System.out.println("Shutting down server..");
 		server.interrupt();
+		server.shutdown();
+		System.out.println("Server Shutdown successfully");
 		//close sockets
-		for(TCPConnection conn: senders) {
-			conn.close();
-		}
+//		for(TCPConnection conn: senders) {
+//			conn.close();
+//		}
 		//shouldnt need this as the connections should close when the senders close
 //		for(TCPConnection conn: receivers) {
 //			conn.close();

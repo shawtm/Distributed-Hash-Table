@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.concurrent.BlockingQueue;
+import java.util.LinkedList;
 
 import cs455.overlay.wireFormats.Event;
 import cs455.overlay.wireFormats.EventFactory;
@@ -13,9 +13,9 @@ public class TCPReceiver implements Runnable {
 	//Wrapper class for the receiving socket for each messaging
 	private Socket socket;
 	private DataInputStream din;
-	private BlockingQueue<Event> events;
+	private LinkedList<Event> events;
 
-	public TCPReceiver(Socket socket, BlockingQueue<Event> events) throws IOException {
+	public TCPReceiver(Socket socket, LinkedList<Event> events) throws IOException {
 		this.socket = socket;
 		din = new DataInputStream(socket.getInputStream());
 		this.events = events;
@@ -29,7 +29,7 @@ public class TCPReceiver implements Runnable {
 				byte[] data = new byte[dataLength];
 				din.readFully(data, 0, dataLength);
 				synchronized(events) {
-					events.put(EventFactory.getEvent(data));
+					events.add(EventFactory.getEvent(data));
 				}
 			} catch (SocketException se) {
 				System.out.println(se.getMessage());
@@ -37,9 +37,6 @@ public class TCPReceiver implements Runnable {
 			} catch (IOException ioe) {
 				System.out.println(ioe.getMessage()) ;
 				break;
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 	}

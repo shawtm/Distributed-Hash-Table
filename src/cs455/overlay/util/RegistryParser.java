@@ -12,13 +12,35 @@ public class RegistryParser extends InteractiveCommandParser {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		
+		while(!interrupted()) {
+			String line = scanner.nextLine();
+			parse(line);
+		}
+		System.out.println("Parser shutdown successfully");
 	}
 
 	@Override
-	public void parse() {
-		// TODO Auto-generated method stub
-		
+	public void parse(String line) {
+		//System.out.println(line);
+		switch (line) {
+		case "list-messaging-nodes":
+			registry.printNodes();
+			break;
+		case "setup-overlay":
+			registry.setupOverlay(Integer.parseInt(scanner.next()));
+			break;
+		case "list-routing-tables":
+			registry.printRoutingTables();
+		case "start":
+			registry.start(Integer.parseInt(scanner.next()));
+			break;
+		case "exit":
+			registry.shutdown();
+			this.interrupt();
+			break;
+		default:
+			System.out.println("Command not recognized");
+			break;
+		}
 	}
 }

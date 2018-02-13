@@ -1,12 +1,13 @@
 
 
 all: compile
-	echo -e '[INFO] Done!’
+	echo -e '[INFO] Done!'
 
 clean:
 	echo -e '[INFO] Cleaning Up..'
-	-rm -rf cs455/**/**/*.class
+	-rm -rf ./src/*/*/*/*.class
 
 compile:
 	echo -e '[INFO] Compiling the Source..'
-	javac -d . cs455/**/**/*.java
+	javac ./src/*/*/*/*.java
+

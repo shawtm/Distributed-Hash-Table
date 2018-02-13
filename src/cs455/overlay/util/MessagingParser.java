@@ -13,17 +13,25 @@ public class MessagingParser extends InteractiveCommandParser {
 	@Override
 	public void run() {
 		while(!interrupted()) {
-			this.parse();
+			String line = scanner.next();
+			parse(line);
 		}
 		//close all sockets
 	}
 
 	@Override
-	public void parse() {
-		// TODO Auto-generated method stub
-		String line = scanner.next();
-		if(line.equals("exit")) {
+	public void parse(String line) {
+		switch (line) {
+		case "print-counters-and-diagnostics":
+			node.printCounters();
+			break;
+		case "exit-overlay":
+			node.quit();
 			this.interrupt();
+			break;
+		default:
+			System.out.println("Command not recognized");
+			break;
 		}
 	}
 }

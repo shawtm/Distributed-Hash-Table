@@ -1,8 +1,7 @@
 package cs455.overlay.node;
 
 import java.io.IOException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.LinkedList;
 
 import cs455.overlay.tcp.TCPConnectionsCache;
 import cs455.overlay.tcp.TCPServerThread;
@@ -15,7 +14,7 @@ public class Node {
 	//connections cache
 	protected TCPConnectionsCache connections;
 	//queue of events
-	protected BlockingQueue<Event> events;
+	protected LinkedList<Event> events;
 	
 	public Node(){
 		try {
@@ -24,7 +23,7 @@ public class Node {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.events = new ArrayBlockingQueue<Event>(1024);
+		this.events = new LinkedList<Event>();
 		this.connections = new TCPConnectionsCache(this.server, this.events);
 	}
 }

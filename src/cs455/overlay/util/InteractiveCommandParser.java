@@ -11,5 +11,5 @@ public abstract class InteractiveCommandParser extends Thread {
 	
 	public abstract void run();
 	
-	public abstract void parse();
+	public abstract void parse(String line);
 }

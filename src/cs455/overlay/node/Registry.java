@@ -13,17 +13,22 @@ public class Registry extends Node {
 	private ArrayList<Integer> registeredIDs;
 	private RegistryTable table;
 	private Random rand;
+	//private boolean run = true;
 	
 	public Registry(){
 		super();
 		this.table = new RegistryTable();
 		RegistryParser parser = new RegistryParser(this);
 		parser.start();
-		this.registeredIDs = new ArrayList<>();
-		this.rand = new Random();
-		this.rts = new ArrayList<>();
+		this.connections.start();
+		//this.registeredIDs = new ArrayList<>();
+		//this.rand = new Random();
+		//this.rts = new ArrayList<>();
+		//run();
 	}
-	
+	public void run() {
+		System.out.println("Exiting now");
+	}
 	public void register(int port, byte[] ipAddress, TCPConnection conn){
 		int id = addID();
 		//Register Node
@@ -35,7 +40,28 @@ public class Registry extends Node {
 		//remove id form registeredIDs
 		table.deregisterNode(id);
 	}
-	
+	public void printRoutingTables() {
+		System.out.println(this.rts);
+	}
+	public void shutdown() {
+		System.out.println("Shutting Down...");
+		this.connections.interrupt();
+		//this.run = false;
+	}
+	public void printNodes() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setupOverlay(int size) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void start(int rounds) {
+		// TODO Auto-generated method stub
+		
+	}
 	private int addID(){
 		int id = getID();
 		registeredIDs.add(id);
@@ -48,11 +74,7 @@ public class Registry extends Node {
 			newID = rand.nextInt(128);
 		return newID;
 	}
-	public void printRoutingTables() {
-		System.out.println(this.rts);
-	}
-	
 	public static void main(String[] args) {
-		//TODO
+		Registry r = new Registry();
 	}
 }

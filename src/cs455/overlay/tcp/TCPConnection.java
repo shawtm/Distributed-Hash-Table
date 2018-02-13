@@ -2,7 +2,7 @@ package cs455.overlay.tcp;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.BlockingQueue;
+import java.util.LinkedList;
 
 import cs455.overlay.wireFormats.Event;
 
@@ -14,7 +14,7 @@ public class TCPConnection {
 	
 	public enum Type {SENDER, RECEIVER, MESSAGING_TO_REGISTRY, REGISTRY_TO_MESSAGING};
 	
-	public TCPConnection(Socket socket, BlockingQueue<Event> events, Type type) throws IOException{
+	public TCPConnection(Socket socket, LinkedList<Event> events, Type type) throws IOException{
 		this.type = type;
 		this.rec = new TCPReceiver(socket, events);
 		if (this.type != Type.RECEIVER) {
