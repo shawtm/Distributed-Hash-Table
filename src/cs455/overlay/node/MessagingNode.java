@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Random;
 
 import cs455.overlay.routing.RoutingEntry;
 import cs455.overlay.routing.RoutingTable;
@@ -12,6 +13,8 @@ import cs455.overlay.tcp.TCPConnectionsCache;
 import cs455.overlay.util.MessagingParser;
 import cs455.overlay.wireFormats.Event;
 import cs455.overlay.wireFormats.NodeReportsOverlaySetupStatus;
+import cs455.overlay.wireFormats.OverlayNodeReportsTaskFinished;
+import cs455.overlay.wireFormats.OverlayNodeSendsData;
 import cs455.overlay.wireFormats.OverlayNodeSendsDeregistration;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireFormats.Protocol;
@@ -23,6 +26,11 @@ public class MessagingNode extends Node {
 	private RoutingTable rt;
 	private int[] nodes;
 	private int id;
+	private long sentData;
+	private long receivedData;
+	private int packetsSent;
+	private int packetsRouted;
+	private int packetsReceived;
 	
 	public MessagingNode(String ip, int port){
 		super();
@@ -58,8 +66,32 @@ public class MessagingNode extends Node {
 		this.quit();
 	}
 	private void taskInitiate(Event event) {
+		this.sentData = 0;
+		this.receivedData = 0;
+		this.packetsSent = 0;
+		this.packetsRouted = 0;
+		this.packetsReceived = 0;
 		RegistryRequestsTaskInitiate task = new RegistryRequestsTaskInitiate(event.getBytes());
-		//RESUME HERE
+		Random r = new Random();
+		int count = task.getNumber();
+		int index = r.nextInt(this.nodes.length);
+		while (count > 0) {
+			if (nodes[index] != this.id) {
+				int payload = r.nextInt();
+				sentData += payload;
+				packetsSent++;
+				OverlayNodeSendsData ov = new OverlayNodeSendsData(Protocol.OVERLAY_NODE_SENDS_DATA, nodes[index], this.id, payload, new int[0]);
+				rt.sendData(ov, nodes[index]);
+				count--;
+			}
+			index = r.nextInt(this.nodes.length);
+		}
+		//have sent all data
+		//send task complete to registry
+		int port = this.connections.getPort();
+		byte[] ip = this.connections.getIP();
+		OverlayNodeReportsTaskFinished fin = new OverlayNodeReportsTaskFinished(Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED, ip, port, this.id);
+		rt.sendDataToRegistry(fin);
 	}
 	private void setupOverlay(Event event) {
 		RegistrySendsNodeManifest man = new RegistrySendsNodeManifest(event.getBytes());

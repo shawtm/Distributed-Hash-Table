@@ -7,22 +7,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
-public class OverlayNodeSendsRegistration extends Protocol {
+public class OverlayNodeReportsTaskFinished extends Protocol {
 	private byte type;
 	private int length;
 	private byte[] ip;
 	private int port;
+	private int id;
 	
-	public OverlayNodeSendsRegistration(byte type, int length, byte[] ip, int port) {
+	public OverlayNodeReportsTaskFinished(byte type, byte[] ip, int port, int id) {
 		this.type = type;
-		this.length = length;
+		this.length = ip.length;
 		this.ip = ip;
 		this.port = port;
+		this.id = id;
 	}
-	public OverlayNodeSendsRegistration(byte[] bytes) {
+	public OverlayNodeReportsTaskFinished(byte[] bytes) {
 		this.unmarshallBytes(bytes);
 	}
 	
@@ -40,6 +40,9 @@ public class OverlayNodeSendsRegistration extends Protocol {
 	public int getPort() {
 		return this.port;
 	}
+	public int getID() {
+		return this.id;
+	}
 	@Override
 	public byte[] getBytes() {
 		return this.marshallBytes();
@@ -50,23 +53,12 @@ public class OverlayNodeSendsRegistration extends Protocol {
 		byte[] marshalledBytes = null;
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
-//		InetAddress addr;
-//		byte[] identifierBytes = null;
-//		try {
-//			addr = InetAddress.getLocalHost();
-//			identifierBytes = addr.getAddress();
-//		} catch (UnknownHostException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		int elementLength = identifierBytes.length;
 		try {
 			dout.writeInt(this.type);
-//			dout.writeInt(elementLength);
-//			dout.write(identifierBytes);
-			dout.write(ip.length);
+			dout.writeInt(length);
 			dout.write(ip);
 			dout.writeInt(this.port);
+			dout.writeInt(this.id);
 			dout.flush();
 			marshalledBytes = baOutputStream.toByteArray();
 			baOutputStream.close();
@@ -88,6 +80,7 @@ public class OverlayNodeSendsRegistration extends Protocol {
 			ip = new byte[length];
 			din.readFully(ip);
 			port = din.readInt();
+			id = din.readInt();
 			baInputStream.close();
 			din.close();
 		} catch (IOException e) {
@@ -96,5 +89,4 @@ public class OverlayNodeSendsRegistration extends Protocol {
 		}
 		return this;
 	}
-
 }
