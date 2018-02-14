@@ -19,6 +19,14 @@ public class RegistryTable {
 		}
 		return null;
 	}
+	public RegistryEntry getEntry(int id) {
+		for (RegistryEntry re: table) {
+			if(re.getId() == id) {
+				return re;
+			}
+		}
+		return null;
+	}
 	public void registerNode(int id, int port, byte[] ipAddress, TCPConnection conn) {
 		table.add(new RegistryEntry(id, port, ipAddress, conn));
 	}

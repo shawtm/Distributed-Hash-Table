@@ -24,6 +24,7 @@ public class Registry extends Node {
 	private ArrayList<int[]> rts;
 	private ArrayList<Integer> registeredIDs;
 	private ArrayList<Integer> finishedIDs;
+	private ArrayList<TrafficSummary> summaries;
 	private RegistryTable table;
 	private Random rand;
 	private int connected;
@@ -70,10 +71,15 @@ public class Registry extends Node {
 		}
 		System.out.println("Exiting now");
 	}
+	
 	private void traffic(Event event) {
 		OverlayNodeReportsTrafficSummary sum = new OverlayNodeReportsTrafficSummary(event.getBytes());
-		//Resume Here
+		TrafficSummary summ = new TrafficSummary(sum.getId(), sum.getPacketsSent(), 
+				sum.getPacketsRelayed(), sum.getPacketsReceived(), sum.getSumSent(), sum.getSumReceived());
+		System.out.println(summ);
+		this.summaries.add(summ);
 	}
+	
 	private void taskFinish(Event event) {
 		OverlayNodeReportsTaskFinished fin = new OverlayNodeReportsTaskFinished(event.getBytes());
 		finishedIDs.remove((Integer) fin.getID());
@@ -81,6 +87,7 @@ public class Registry extends Node {
 			this.allTaskFinished();
 		}
 	}
+	
 	private void allTaskFinished() {
 		try {
 			Thread.sleep((15*1000));
@@ -88,11 +95,13 @@ public class Registry extends Node {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		this.summaries = new ArrayList<>();
 		RegistryRequestsTrafficSummary summ = new RegistryRequestsTrafficSummary();
 		for (int i = 0; i < this.registeredIDs.size(); i++) {
 			table.getConnection(this.registeredIDs.get(i)).sendData(summ);
 		}
 	}
+	
 	private void overlaySetup(Event event) {
 		NodeReportsOverlaySetupStatus stat = new NodeReportsOverlaySetupStatus(event.getBytes());
 		System.out.println(stat.getInfo());
@@ -147,7 +156,15 @@ public class Registry extends Node {
 		table.deregisterNode(id);
 	}
 	public void printRoutingTables() {
-		System.out.println(this.rts);
+		for (int i = 0; i < this.registeredIDs.size(); i++) {
+			System.out.println("Node " + registeredIDs.get(i) + "has the following nodes in its routing table: ");
+			for (int j = 0; j < rts.get(i).length; j++) {
+				System.out.println("Node: " + this.registeredIDs.get(i) +
+						"IP address: " + new String (this.table.getEntry(registeredIDs.get(i)).getIpAddress()) +
+						"Port Number: " + this.table.getEntry(registeredIDs.get(i)).getPort());
+			}
+			System.out.println();
+		}
 	}
 	public void shutdown() {
 		System.out.println("Shutting Down...");
@@ -155,8 +172,11 @@ public class Registry extends Node {
 		this.run = false;
 	}
 	public void printNodes() {
-		// TODO Auto-generated method stub
-		
+		for (int i = 0; i < this.registeredIDs.size(); i++) {
+			System.out.println("Node: " + this.registeredIDs.get(i) +
+					"IP address: " + new String (this.table.getEntry(registeredIDs.get(i)).getIpAddress()) +
+					"Port Number: " + this.table.getEntry(registeredIDs.get(i)).getPort());
+		}
 	}
 
 	public void setupOverlay(int size) {
@@ -235,5 +255,43 @@ public class Registry extends Node {
 	public static void main(String[] args) {
 		Registry r = new Registry();
 		r.run();
+	}
+	private class TrafficSummary{
+		private int id;
+		private int sent;
+		private int routed;
+		private int received;
+		private long sumSent;
+		private long sumreceived;
+		public TrafficSummary(int id, int sent, int routed, int received, long sumSent, long sumreceived) {
+			this.id = id;
+			this.sent = sent;
+			this.routed = routed;
+			this.received = received;
+			this.sumSent = sumSent;
+			this.sumreceived = sumreceived;
+		}
+		public int getId() {
+			return id;
+		}
+		public int getSent() {
+			return sent;
+		}
+		public int getRouted() {
+			return routed;
+		}
+		public int getReceived() {
+			return received;
+		}
+		public long getSumSent() {
+			return sumSent;
+		}
+		public long getSumreceived() {
+			return sumreceived;
+		}
+		public String toString() {
+			return new String("Node: " + id + "Packets Sent: " + sent + "Packets Routed: " + routed + 
+					"Packets Received: " + received + "Sum of Packets Sent: " + sumSent + "Sum of Packets Received: " + sumreceived);
+		}
 	}
 }
