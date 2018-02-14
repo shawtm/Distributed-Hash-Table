@@ -22,26 +22,31 @@ public class RegistryParser extends InteractiveCommandParser {
 	@Override
 	public void parse(String line) {
 		//System.out.println(line);
-		switch (line) {
-		case "list-messaging-nodes":
-			registry.printNodes();
-			break;
-		case "setup-overlay":
-			registry.setupOverlay(Integer.parseInt(scanner.next()));
-			break;
-		case "list-routing-tables":
-			registry.printRoutingTables();
-		case "start":
-			registry.start(Integer.parseInt(scanner.next()));
-			break;
-		case "exit":
-			registry.interrupt();
-			registry.shutdown();
-			this.interrupt();
-			break;
-		default:
+		String[] strs = line.split(" ");
+		if (strs.length > 2) {
 			System.out.println("Command not recognized");
-			break;
+		}else {
+			switch (strs[0]) {
+			case "list-messaging-nodes":
+				registry.printNodes();
+				break;
+			case "setup-overlay":
+				registry.setupOverlay(Integer.parseInt(strs[1]));
+				break;
+			case "list-routing-tables":
+				registry.printRoutingTables();
+			case "start":
+				registry.start(Integer.parseInt(strs[1]));
+				break;
+			case "exit":
+				registry.interrupt();
+				registry.shutdown();
+				this.interrupt();
+				break;
+			default:
+				System.out.println("Command not recognized");
+				break;
+			}
 		}
 	}
 }
