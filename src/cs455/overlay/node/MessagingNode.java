@@ -112,6 +112,7 @@ public class MessagingNode extends Node {
 		RegistryRequestsTaskInitiate task = new RegistryRequestsTaskInitiate(event.getBytes());
 		Random r = new Random();
 		int count = task.getNumber();
+		System.out.println("Starting Task with Size " + count);
 		int index = r.nextInt(this.nodes.length);
 		while (count > 0) {
 			if (nodes[index] != this.id) {
@@ -148,15 +149,20 @@ public class MessagingNode extends Node {
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				retid = -1;
+				System.out.println("[ERROR] connecting to nodes!");
 				e.printStackTrace();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				retid = -1;
+				System.out.println("[ERROR] connecting to nodes!");
 				e.printStackTrace();
 			}
 		}
 		NodeReportsOverlaySetupStatus reg = new NodeReportsOverlaySetupStatus(Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS, retid, ("successfully connected to " + socketCount + " nodes!"));
 		rt.sendDataToRegistry(reg);
+		if(retid != -1) {
+			System.out.println("Successfully Connected to all nodes in Routing Table!");
+		}
 	}
 	private void finishRegistration(Event event) {
 		RegistryReportsRegistrationStatus re = new RegistryReportsRegistrationStatus(event.getBytes());
@@ -171,10 +177,11 @@ public class MessagingNode extends Node {
 		System.out.println("Exiting now");
 	}
 	public void printCounters() {
-		//TODO
-		return;
+		System.out.println("Packets Sent: " + this.packetsSent + "Packets Routed: " + this.packetsRouted + 
+				"Packets Received: " + this.packetsReceived + "Sum of Packets Sent: " + this.sentData + "Sum of Packets Received: " + this.receivedData);
 	}
 	private void deregister() {
+		System.out.println("Deregistering now...");
 		int thisPort = this.connections.getPort();
 		byte[] thisIP = this.connections.getIP();
 		Event e = new OverlayNodeSendsDeregistration(Protocol.OVERLAY_NODE_SENDS_REGISTRATION, thisIP.length, thisIP, thisPort, this.id);

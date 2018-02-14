@@ -29,6 +29,7 @@ public class Registry extends Node {
 	private Random rand;
 	private int connected;
 	private boolean run = true;
+	private int time = 15;
 	
 	public Registry(){
 		super();
@@ -63,6 +64,8 @@ public class Registry extends Node {
 					break;
 				case Protocol.OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY:
 					this.traffic(ev);
+				default:
+					System.out.println("[ERROR] Message Not Recognized! bytecode : " + ev.getType() + " data bytes: " + ev.getBytes());
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -78,23 +81,44 @@ public class Registry extends Node {
 				sum.getPacketsRelayed(), sum.getPacketsReceived(), sum.getSumSent(), sum.getSumReceived());
 		System.out.println(summ);
 		this.summaries.add(summ);
+		if (summaries.size() == registeredIDs.size())
+			this.printSummedTraffic();
 	}
-	
+	private void printSummedTraffic() {
+		int sent = 0;
+		int routed = 0;
+		int received = 0;
+		long sumSent = 0;
+		long sumReceived = 0;
+		for (TrafficSummary ts: summaries) {
+			sent += ts.sent;
+			routed += ts.routed;
+			received += ts.received;
+			sumSent += ts.sumSent;
+			sumReceived += ts.sumreceived;
+		}
+		System.out.println("Total Summaries for all Nodes:");
+		System.out.println("Packets Sent: " + sent + "Packets Routed: " + routed + 
+				"Packets Received: " + received + "Sum of Packets Sent: " + sumSent + "Sum of Packets Received: " + sumReceived);
+	}
 	private void taskFinish(Event event) {
 		OverlayNodeReportsTaskFinished fin = new OverlayNodeReportsTaskFinished(event.getBytes());
 		finishedIDs.remove((Integer) fin.getID());
+		System.out.println("Node: " + fin.getID() + "finished sending " + finishedIDs.size() + " more nodes need to finish");
 		if (this.finishedIDs.size() == 0) {
 			this.allTaskFinished();
 		}
 	}
 	
 	private void allTaskFinished() {
+		System.out.println("All nodes finished sending! Waiting " + this.time + " seconds for nodes to finish routing packets...");
 		try {
-			Thread.sleep((15*1000));
+			Thread.sleep((this.time*1000));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Sending traffic requests...");
 		this.summaries = new ArrayList<>();
 		RegistryRequestsTrafficSummary summ = new RegistryRequestsTrafficSummary();
 		for (int i = 0; i < this.registeredIDs.size(); i++) {
@@ -115,6 +139,7 @@ public class Registry extends Node {
 	}
 	private void deregister(OverlayNodeSendsDeregistration on) {
 		//TODO add checks
+		System.out.println("Node: " + on.getID() + " requested to be deregistered!");
 		this.registeredIDs.remove(on.getID());
 		TCPConnection conn = table.getConnection(on.getID());
 		this.table.deregisterNode(on.getID());
@@ -251,6 +276,9 @@ public class Registry extends Node {
 		while (registeredIDs.contains(newID))
 			newID = rand.nextInt(128);
 		return newID;
+	}
+	public void setTime(int minutes) {
+		this.time = minutes;
 	}
 	public static void main(String[] args) {
 		Registry r = new Registry();
