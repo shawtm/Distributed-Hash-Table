@@ -10,6 +10,7 @@ import cs455.overlay.tcp.TCPConnectionsCache;
 import cs455.overlay.util.RegistryParser;
 import cs455.overlay.wireFormats.Event;
 import cs455.overlay.wireFormats.NodeReportsOverlaySetupStatus;
+import cs455.overlay.wireFormats.OverlayNodeReportsTaskFinished;
 import cs455.overlay.wireFormats.OverlayNodeSendsDeregistration;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireFormats.Protocol;
@@ -20,6 +21,7 @@ import cs455.overlay.wireFormats.RegistrySendsNodeManifest;
 public class Registry extends Node {
 	private ArrayList<int[]> rts;
 	private ArrayList<Integer> registeredIDs;
+	private ArrayList<Integer> finishedIDs;
 	private RegistryTable table;
 	private Random rand;
 	private int connected;
@@ -53,6 +55,8 @@ public class Registry extends Node {
 				case Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS:
 					this.overlaySetup(ev);
 					break;
+				case Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED:
+					this.taskFinish(ev);
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -60,6 +64,22 @@ public class Registry extends Node {
 			}
 		}
 		System.out.println("Exiting now");
+	}
+	private void taskFinish(Event event) {
+		OverlayNodeReportsTaskFinished fin = new OverlayNodeReportsTaskFinished(event.getBytes());
+		finishedIDs.remove((Integer) fin.getID());
+		if (this.finishedIDs.size() == 0) {
+			this.allTaskFinished();
+		}
+	}
+	private void allTaskFinished() {
+		try {
+			Thread.sleep((15*1000));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	private void overlaySetup(Event event) {
 		NodeReportsOverlaySetupStatus stat = new NodeReportsOverlaySetupStatus(event.getBytes());
@@ -176,6 +196,11 @@ public class Registry extends Node {
 		return ret;
 	}
 	public void start(int rounds) {
+		if(connected != this.registeredIDs.size()) {
+			System.out.println("[ERROR] cannot start experiement! Some nodes have failed connecting");
+			return;
+		}
+		finishedIDs = new ArrayList<>(this.registeredIDs);
 		RegistryRequestsTaskInitiate task;
 		for (int i = 0; i < this.registeredIDs.size(); i++) {
 			task = new RegistryRequestsTaskInitiate(Protocol.REGISTRY_REQUESTS_TASK_INITIATE, rounds);
