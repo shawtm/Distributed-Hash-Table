@@ -11,11 +11,13 @@ import cs455.overlay.util.RegistryParser;
 import cs455.overlay.wireFormats.Event;
 import cs455.overlay.wireFormats.NodeReportsOverlaySetupStatus;
 import cs455.overlay.wireFormats.OverlayNodeReportsTaskFinished;
+import cs455.overlay.wireFormats.OverlayNodeReportsTrafficSummary;
 import cs455.overlay.wireFormats.OverlayNodeSendsDeregistration;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireFormats.Protocol;
 import cs455.overlay.wireFormats.RegistryReportsRegistrationStatus;
 import cs455.overlay.wireFormats.RegistryRequestsTaskInitiate;
+import cs455.overlay.wireFormats.RegistryRequestsTrafficSummary;
 import cs455.overlay.wireFormats.RegistrySendsNodeManifest;
 
 public class Registry extends Node {
@@ -57,6 +59,9 @@ public class Registry extends Node {
 					break;
 				case Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED:
 					this.taskFinish(ev);
+					break;
+				case Protocol.OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY:
+					this.traffic(ev);
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -64,6 +69,10 @@ public class Registry extends Node {
 			}
 		}
 		System.out.println("Exiting now");
+	}
+	private void traffic(Event event) {
+		OverlayNodeReportsTrafficSummary sum = new OverlayNodeReportsTrafficSummary(event.getBytes());
+		//Resume Here
 	}
 	private void taskFinish(Event event) {
 		OverlayNodeReportsTaskFinished fin = new OverlayNodeReportsTaskFinished(event.getBytes());
@@ -79,12 +88,16 @@ public class Registry extends Node {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		RegistryRequestsTrafficSummary summ = new RegistryRequestsTrafficSummary();
+		for (int i = 0; i < this.registeredIDs.size(); i++) {
+			table.getConnection(this.registeredIDs.get(i)).sendData(summ);
+		}
 	}
 	private void overlaySetup(Event event) {
 		NodeReportsOverlaySetupStatus stat = new NodeReportsOverlaySetupStatus(event.getBytes());
 		System.out.println(stat.getInfo());
 		if (stat.getID() != -1) {
+			System.out.println("Node: " + stat.getID() + " successfully setup its overlay");
 			connected++;
 		}else {
 			System.out.println("[ERROR] A node failed to connect properly please retry setting up overlay");

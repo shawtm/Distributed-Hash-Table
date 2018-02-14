@@ -14,6 +14,7 @@ import cs455.overlay.util.MessagingParser;
 import cs455.overlay.wireFormats.Event;
 import cs455.overlay.wireFormats.NodeReportsOverlaySetupStatus;
 import cs455.overlay.wireFormats.OverlayNodeReportsTaskFinished;
+import cs455.overlay.wireFormats.OverlayNodeReportsTrafficSummary;
 import cs455.overlay.wireFormats.OverlayNodeSendsData;
 import cs455.overlay.wireFormats.OverlayNodeSendsDeregistration;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
@@ -57,6 +58,15 @@ public class MessagingNode extends Node {
 					break;
 				case Protocol.REGISTRY_REQUESTS_TASK_INITIATE:
 					this.taskInitiate(ev);
+					break;
+				case Protocol.OVERLAY_NODE_SENDS_DATA:
+					this.handleData(ev);
+					break;
+				case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
+					this.sendRegistryTraffic();
+					break;
+				default:
+					System.out.println("[ERROR] Message Not Recognized! bytecode : " + ev.getType() + " data bytes: " + ev.getBytes());
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -65,12 +75,40 @@ public class MessagingNode extends Node {
 		}
 		this.quit();
 	}
-	private void taskInitiate(Event event) {
+	private void sendRegistryTraffic() {
+		this.printCounters();
+		OverlayNodeReportsTrafficSummary sum = new OverlayNodeReportsTrafficSummary(Protocol.OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY, this.id, 
+				this.packetsSent, this.packetsRouted, this.sentData, this.packetsReceived, this.receivedData);
+		rt.sendDataToRegistry(sum);
+		this.resetCounters();
+	}
+	private void handleData(Event event) {
+		OverlayNodeSendsData data = new OverlayNodeSendsData(event.getBytes());
+		if(this.id == data.getDest()) {
+			this.packetsReceived++;
+			this.receivedData += data.getPayload();
+		}else {
+			this.packetsRouted++;
+			int[] oldhops = data.getHops();
+			int[] hops = new int[oldhops.length+1];
+			hops[0] = this.id;
+			if(hops.length > 1) {
+				for(int i = 0; i< oldhops.length; i++) 
+					hops[i+1] = oldhops[i];
+			}
+			OverlayNodeSendsData newData = new OverlayNodeSendsData(data.getType(), data.getSource(), data.getDest(), data.getPayload(), hops);
+			rt.sendData(newData, data.getDest());
+		}
+	}
+	private void resetCounters() {
 		this.sentData = 0;
 		this.receivedData = 0;
 		this.packetsSent = 0;
 		this.packetsRouted = 0;
 		this.packetsReceived = 0;
+	}
+	private void taskInitiate(Event event) {
+		this.resetCounters();
 		RegistryRequestsTaskInitiate task = new RegistryRequestsTaskInitiate(event.getBytes());
 		Random r = new Random();
 		int count = task.getNumber();
