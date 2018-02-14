@@ -1,8 +1,11 @@
 package cs455.overlay.wireFormats;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class RegistryReportsRegistrationStatus extends Protocol {
@@ -39,8 +42,23 @@ public class RegistryReportsRegistrationStatus extends Protocol {
 
 	@Override
 	public byte[] marshallBytes() {
-		// TODO Auto-generated method stub
-		return null;
+		byte[] marshalledBytes = null;
+		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
+		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
+		try {
+			dout.writeInt(this.type);
+			dout.writeInt(this.id);
+			dout.writeInt(this.length);
+			dout.write(this.info.getBytes());
+			dout.flush();
+			marshalledBytes = baOutputStream.toByteArray();
+			baOutputStream.close();
+			dout.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return marshalledBytes;
 	}
 
 	@Override

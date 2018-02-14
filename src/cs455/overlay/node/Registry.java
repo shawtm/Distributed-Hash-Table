@@ -1,24 +1,28 @@
 package cs455.overlay.node;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import cs455.overlay.routing.RegistryTable;
-import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.tcp.TCPConnection;
 import cs455.overlay.tcp.TCPConnectionsCache;
 import cs455.overlay.util.RegistryParser;
 import cs455.overlay.wireFormats.Event;
+import cs455.overlay.wireFormats.NodeReportsOverlaySetupStatus;
 import cs455.overlay.wireFormats.OverlayNodeSendsDeregistration;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireFormats.Protocol;
 import cs455.overlay.wireFormats.RegistryReportsRegistrationStatus;
+import cs455.overlay.wireFormats.RegistryRequestsTaskInitiate;
+import cs455.overlay.wireFormats.RegistrySendsNodeManifest;
 
 public class Registry extends Node {
-	private ArrayList<RoutingTable> rts;
+	private ArrayList<int[]> rts;
 	private ArrayList<Integer> registeredIDs;
 	private RegistryTable table;
 	private Random rand;
+	private int connected;
 	private boolean run = true;
 	
 	public Registry(){
@@ -46,6 +50,9 @@ public class Registry extends Node {
 					OverlayNodeSendsDeregistration on1 = new OverlayNodeSendsDeregistration(ev.getBytes());
 					this.deregister(on1);
 					break;
+				case Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS:
+					this.overlaySetup(ev);
+					break;
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -53,6 +60,16 @@ public class Registry extends Node {
 			}
 		}
 		System.out.println("Exiting now");
+	}
+	private void overlaySetup(Event event) {
+		NodeReportsOverlaySetupStatus stat = new NodeReportsOverlaySetupStatus(event.getBytes());
+		System.out.println(stat.getInfo());
+		if (stat.getID() != -1) {
+			connected++;
+		}else {
+			System.out.println("[ERROR] A node failed to connect properly please retry setting up overlay");
+		}
+		
 	}
 	private void deregister(OverlayNodeSendsDeregistration on) {
 		//TODO add checks
@@ -110,13 +127,60 @@ public class Registry extends Node {
 	}
 
 	public void setupOverlay(int size) {
-		// TODO Auto-generated method stub
-		
+		this.connected = 0;
+		rts = new ArrayList<>(size);
+		Collections.sort(this.registeredIDs);
+		for (int i = 0; i < this.registeredIDs.size(); i++) {
+			rts.set(i, this.getPositions(i, size));
+		}
+		RegistrySendsNodeManifest man;
+		int[] nodes = this.getNodes();
+		for (int i = 0; i < this.registeredIDs.size(); i++) {
+			man = new RegistrySendsNodeManifest(Protocol.REGISTRY_SENDS_NODE_MANIFEST, size, 
+					this.getPositions(i, size), getIPs(this.getPositions(i, size)), getPorts(this.getPositions(i, size)), nodes);
+			table.getConnection(this.registeredIDs.get(i)).sendData(man);
+		}
 	}
-
+	private int[] getNodes() {
+		int[] ret = new int[this.registeredIDs.size()];
+		for(int i = 0; i < ret.length; i++)
+			ret[i] = this.registeredIDs.get(i);
+		return ret;
+	}
+	private int[] getPorts(int[] positions) {
+		int[] ret = new int[positions.length];
+		for(int i = 0; i < ret.length; i++)
+			ret[i] = table.getConnection(positions[i]).getPort();
+		return ret;
+	}
+	private byte[][] getIPs(int[] positions) {
+		byte[][] ret = new byte[positions.length][];
+		for(int i = 0; i < ret.length; i++)
+			ret[i] = table.getConnection(positions[i]).getIP();
+		return ret;
+	}
+	private int[] getPositions(int start, int size) {
+		int[] ret = new int[size];
+		int[] positions = this.getTwos(size);
+		for ( int i = 0; i < size; i++) {
+			ret[i] = this.registeredIDs.get(((start+positions[i]) % this.registeredIDs.size()));
+		}
+		return ret;
+	}
+	private int[] getTwos(int size) {
+		int[] ret = new int[size];
+		ret[0] = 1;
+		for(int i = 1; i < size; i++) {
+			ret[i] = 2 * ret[i-1];
+		}
+		return ret;
+	}
 	public void start(int rounds) {
-		// TODO Auto-generated method stub
-		
+		RegistryRequestsTaskInitiate task;
+		for (int i = 0; i < this.registeredIDs.size(); i++) {
+			task = new RegistryRequestsTaskInitiate(Protocol.REGISTRY_REQUESTS_TASK_INITIATE, rounds);
+			table.getConnection(this.registeredIDs.get(i)).sendData(task);
+		}
 	}
 	private int addID(){
 		int id = getID();

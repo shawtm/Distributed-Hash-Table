@@ -5,18 +5,23 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import cs455.overlay.routing.RoutingEntry;
 import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.tcp.TCPConnection;
 import cs455.overlay.tcp.TCPConnectionsCache;
 import cs455.overlay.util.MessagingParser;
 import cs455.overlay.wireFormats.Event;
+import cs455.overlay.wireFormats.NodeReportsOverlaySetupStatus;
 import cs455.overlay.wireFormats.OverlayNodeSendsDeregistration;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireFormats.Protocol;
 import cs455.overlay.wireFormats.RegistryReportsRegistrationStatus;
+import cs455.overlay.wireFormats.RegistryRequestsTaskInitiate;
+import cs455.overlay.wireFormats.RegistrySendsNodeManifest;
 
 public class MessagingNode extends Node {
 	private RoutingTable rt;
+	private int[] nodes;
 	private int id;
 	
 	public MessagingNode(String ip, int port){
@@ -39,6 +44,11 @@ public class MessagingNode extends Node {
 				case Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS:
 					this.interrupt();
 					break;
+				case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
+					this.setupOverlay(ev);
+					break;
+				case Protocol.REGISTRY_REQUESTS_TASK_INITIATE:
+					this.taskInitiate(ev);
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -46,6 +56,37 @@ public class MessagingNode extends Node {
 			}
 		}
 		this.quit();
+	}
+	private void taskInitiate(Event event) {
+		RegistryRequestsTaskInitiate task = new RegistryRequestsTaskInitiate(event.getBytes());
+		//RESUME HERE
+	}
+	private void setupOverlay(Event event) {
+		RegistrySendsNodeManifest man = new RegistrySendsNodeManifest(event.getBytes());
+		this.nodes = man.getNodes();
+		int[] ids = man.getIds();
+		int[] ports = man.getPorts();
+		byte[][] ips = man.getIps();
+		Socket s;
+		int retid = this.id;
+		int socketCount = 0;
+		for(int i = 0; i < ids.length; i++) {
+			try {
+				s = new Socket(InetAddress.getByAddress(ips[i]), ports[i]);
+				rt.addEntry(new RoutingEntry(ids[i], new TCPConnection(s)));
+				socketCount++;
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				retid = -1;
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				retid = -1;
+				e.printStackTrace();
+			}
+		}
+		NodeReportsOverlaySetupStatus reg = new NodeReportsOverlaySetupStatus(Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS, retid, ("successfully connected to " + socketCount + " nodes!"));
+		rt.sendDataToRegistry(reg);
 	}
 	private void finishRegistration(Event event) {
 		RegistryReportsRegistrationStatus re = new RegistryReportsRegistrationStatus(event.getBytes());

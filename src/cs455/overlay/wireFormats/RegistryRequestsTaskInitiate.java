@@ -7,36 +7,28 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
-public class RegistryReportsDeregistrationStatus extends Protocol {
+public class RegistryRequestsTaskInitiate extends Protocol {
+
 	private byte type;
-	private int id;
-	private int length;
-	@SuppressWarnings("unused")
-	private byte[] information;
-	private String info;
+	private int number;
 	
-	public RegistryReportsDeregistrationStatus(byte type, int id, String info) {
+	public RegistryRequestsTaskInitiate(byte type, int number) {
 		this.type = type;
-		this.id = id;
-		this.info = info;
+		this.number = number;
 	}
-	public RegistryReportsDeregistrationStatus(byte[] bytes) {
+	public RegistryRequestsTaskInitiate(byte[] bytes) {
 		this.unmarshallBytes(bytes);
 	}
+	
 	@Override
 	public byte getType() {
 		return this.type;
 	}
-	public int getID() {
-		return this.id;
+	
+	public int getNumber() {
+		return this.number;
 	}
-	public String getInfo() {
-		return this.info;
-	}
-
 	@Override
 	public byte[] getBytes() {
 		return this.marshallBytes();
@@ -49,9 +41,7 @@ public class RegistryReportsDeregistrationStatus extends Protocol {
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		try {
 			dout.writeInt(this.type);
-			dout.writeInt(this.id);
-			dout.writeInt(this.length);
-			dout.write(this.info.getBytes());
+			dout.writeInt(this.number);
 			dout.flush();
 			marshalledBytes = baOutputStream.toByteArray();
 			baOutputStream.close();
@@ -69,11 +59,7 @@ public class RegistryReportsDeregistrationStatus extends Protocol {
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		try {
 			type = (byte) din.readInt();
-			id = din.readInt();
-			length = din.readInt();
-			information = new byte[length];
-			din.readFully(information);
-			info = new String(information);
+			number = din.readInt();
 			baInputStream.close();
 			din.close();
 		} catch (IOException e) {
