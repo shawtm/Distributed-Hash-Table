@@ -38,14 +38,18 @@ public class TCPConnection {
 	public synchronized void close() {
 		// receivers will close when senders close (maybe?)
 		if (closed == false) {
-			if(this.send.isAlive()) {
-				System.out.println("[Conn] Closing Sender");
-				this.send.interrupt();
+			if (this.type != Type.RECEIVER) {
+				if(this.send.isAlive()) {
+					System.out.println("[Conn] Closing Sender");
+					this.send.interrupt();
+				}
 			}
-			if(this.rec.isAlive()) {
-				System.out.println("[Conn] Closing Receiver");
-				this.rec.interrupt();
-				//this.rec.close();
+			if (this.type != Type.SENDER) {
+				if(this.rec.isAlive()) {
+					System.out.println("[Conn] Closing Receiver");
+					this.rec.interrupt();
+					//this.rec.close();
+				}
 			}
 			closed = true;
 		}

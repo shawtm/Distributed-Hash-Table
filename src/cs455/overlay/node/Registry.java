@@ -65,6 +65,7 @@ public class Registry extends Node {
 					break;
 				case Protocol.OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY:
 					this.traffic(ev);
+					break;
 				default:
 					System.out.println("[ERROR] Message Not Recognized! bytecode : " + ev.getType() + " data bytes: " + ev.getBytes());
 				}
@@ -98,8 +99,8 @@ public class Registry extends Node {
 			sumReceived += ts.sumreceived;
 		}
 		System.out.println("Total Summaries for all Nodes:");
-		System.out.println("Packets Sent: " + sent + "Packets Routed: " + routed + 
-				"Packets Received: " + received + "Sum of Packets Sent: " + sumSent + "Sum of Packets Received: " + sumReceived);
+		System.out.println("Packets Sent: " + sent + " Packets Routed: " + routed + 
+				" Packets Received: " + received + " Sum of Packets Sent: " + sumSent + " Sum of Packets Received: " + sumReceived);
 	}
 	private void taskFinish(Event event) {
 		OverlayNodeReportsTaskFinished fin = new OverlayNodeReportsTaskFinished(event.getBytes());
@@ -326,8 +327,8 @@ public class Registry extends Node {
 			return sumreceived;
 		}
 		public String toString() {
-			return new String("Node: " + id + "Packets Sent: " + sent + "Packets Routed: " + routed + 
-					"Packets Received: " + received + "Sum of Packets Sent: " + sumSent + "Sum of Packets Received: " + sumreceived);
+			return new String("Node: " + id + " Packets Sent: " + sent + " Packets Routed: " + routed + 
+					" Packets Received: " + received + " Sum of Packets Sent: " + sumSent + " Sum of Packets Received: " + sumreceived);
 		}
 	}
 }

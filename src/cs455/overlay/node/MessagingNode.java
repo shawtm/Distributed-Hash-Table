@@ -87,12 +87,13 @@ public class MessagingNode extends Node {
 		rt.sendDataToRegistry(sum);
 		this.resetCounters();
 	}
-	private void handleData(Event event) {
+	private synchronized void handleData(Event event) {
 		OverlayNodeSendsData data = new OverlayNodeSendsData(event.getBytes());
 		if(this.id == data.getDest()) {
 			this.packetsReceived++;
 			this.receivedData += data.getPayload();
 		}else {
+			System.out.println("[Node] Routing!");
 			this.packetsRouted++;
 			int[] oldhops = data.getHops();
 			int[] hops = new int[oldhops.length+1];
@@ -105,7 +106,7 @@ public class MessagingNode extends Node {
 			rt.sendData(newData, data.getDest());
 		}
 	}
-	private void resetCounters() {
+	private synchronized void resetCounters() {
 		this.sentData = 0;
 		this.receivedData = 0;
 		this.packetsSent = 0;
@@ -124,7 +125,7 @@ public class MessagingNode extends Node {
 				int payload = r.nextInt();
 				sentData += payload;
 				packetsSent++;
-				OverlayNodeSendsData ov = new OverlayNodeSendsData(Protocol.OVERLAY_NODE_SENDS_DATA, nodes[index], this.id, payload, new int[0]);
+				OverlayNodeSendsData ov = new OverlayNodeSendsData(Protocol.OVERLAY_NODE_SENDS_DATA, this.id, nodes[index], payload, new int[0]);
 				rt.sendData(ov, nodes[index]);
 				count--;
 			}
@@ -193,7 +194,7 @@ public class MessagingNode extends Node {
 	private void register(String ip, int port){
 		System.out.println("Attempting to connect to Registry at " + ip + " on port " + port + "...");
 		try {
-			Socket s = new Socket(InetAddress.getLocalHost(), port);
+			Socket s = new Socket(InetAddress.getByName(ip), port);
 			System.out.println("Connected Successfully");
 			//Create Connection to store socket
 			TCPConnection registryConn = new TCPConnection(s, this.events, TCPConnection.Type.MESSAGING_TO_REGISTRY);
