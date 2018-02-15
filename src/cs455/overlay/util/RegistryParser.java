@@ -39,8 +39,8 @@ public class RegistryParser extends InteractiveCommandParser {
 				registry.start(Integer.parseInt(strs[1]));
 				break;
 			case "exit":
-				registry.interrupt();
 				registry.shutdown();
+				registry.interrupt();
 				this.interrupt();
 				break;
 			default:

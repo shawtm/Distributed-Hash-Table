@@ -18,6 +18,7 @@ public class TCPReceiver extends Thread {
 	private LinkedBlockingQueue<Event> events;
 	private int port = -1;
 	private byte[] ip = null;
+	private boolean exit = false;
 
 	public TCPReceiver(Socket socket, LinkedBlockingQueue<Event> events) throws IOException {
 		this.socket = socket;
@@ -27,7 +28,7 @@ public class TCPReceiver extends Thread {
 	
 	public void run() {
 		int dataLength;
-		while (socket != null && !interrupted()) {
+		while (socket != null && !interrupted() && !exit) {//socket != null && 
 			try {
 				dataLength = din.readInt();
 				System.out.println("[Receiver] Size is " + dataLength);
@@ -43,18 +44,33 @@ public class TCPReceiver extends Thread {
 					}
 					events.put(event);
 				} catch (InterruptedException e) {
+					exit = true;
 				}
 			} catch (SocketException se) {
-				System.out.println(se.getMessage());
+				//exit = true;
+				//System.out.println(se.getMessage());
 			} catch (IOException ioe) {
-				System.out.println(ioe.getMessage()) ;
+				//exit = true;
+				//System.out.println(ioe.getMessage()) ;
 			}
 		}
+		System.out.println("[Receiver] Receiver is exiting!");
 	}
 	public byte[] getIP() {
 		return this.ip;
 	}
 	public int getPort() {
 		return this.port;
+	}
+	public void close() {
+		try {
+			din.close();
+			//socket.close();
+			exit = true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			exit = true;
+			e.printStackTrace();
+		}
 	}
 }

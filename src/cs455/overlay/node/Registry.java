@@ -45,7 +45,7 @@ public class Registry extends Node {
 	}
 	public void run() {
 		Event ev;
-		while(run) {
+		while(run && !interrupted()) {
 			try {
 				ev = this.events.take();
 				switch (ev.getType()) {
@@ -69,11 +69,10 @@ public class Registry extends Node {
 					System.out.println("[ERROR] Message Not Recognized! bytecode : " + ev.getType() + " data bytes: " + ev.getBytes());
 				}
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				this.run = false;
 			}
 		}
-		System.out.println("Exiting now");
+		System.out.println("[Registry] Exiting now!");
 	}
 	
 	private void traffic(Event event) {
@@ -201,8 +200,9 @@ public class Registry extends Node {
 	}
 	public void shutdown() {
 		System.out.println("Shutting Down...");
-		this.connections.interrupt();
 		this.run = false;
+		this.connections.interrupt();
+		
 	}
 	public void printNodes() {
 		for (int i = 0; i < this.registeredIDs.size(); i++) {
@@ -214,10 +214,10 @@ public class Registry extends Node {
 
 	public void setupOverlay(int size) {
 		this.connected = 0;
-		rts = new ArrayList<>(size);
+		rts = new ArrayList<>();
 		Collections.sort(this.registeredIDs);
 		for (int i = 0; i < this.registeredIDs.size(); i++) {
-			rts.set(i, this.getPositions(i, size));
+			rts.add(this.getPositions(i, size));
 		}
 		RegistrySendsNodeManifest man;
 		int[] nodes = this.getNodes();
@@ -290,7 +290,7 @@ public class Registry extends Node {
 	}
 	public static void main(String[] args) {
 		Registry r = new Registry();
-		r.run();
+		r.start();
 	}
 	private class TrafficSummary{
 		private int id;

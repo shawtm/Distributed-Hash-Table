@@ -62,7 +62,7 @@ public class RegistrySendsNodeManifest extends Protocol {
 				dout.write(this.ips[i],0, ips[i].length);
 				dout.writeInt(this.ports[i]);
 			}
-			dout.write(this.nodes.length);
+			dout.writeInt(this.nodes.length);
 			for (int i = 0; i < this.nodes.length; i++)
 				dout.writeInt(this.nodes[i]);
 			dout.flush();
@@ -90,7 +90,7 @@ public class RegistrySendsNodeManifest extends Protocol {
 			byte[] temp;
 			for (int i = 0; i < this.size; i++) {
 				this.ids[i] = din.readInt();
-				tempsize = din.read();
+				tempsize = din.readInt();
 				temp = new byte[tempsize];
 				din.readFully(temp);
 				this.ips[i] = temp;

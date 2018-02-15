@@ -78,6 +78,7 @@ public class MessagingNode extends Node {
 		System.out.println("Interrupting Connections!");
 		//close connections
 		this.connections.interrupt();
+		System.out.println("[Node] Exiting!");
 	}
 	private void sendRegistryTraffic() {
 		this.printCounters();

@@ -84,7 +84,7 @@ public class OverlayNodeSendsData extends Protocol {
 			this.sourceID = din.readInt();
 			this.payload = din.readInt();
 			this.length = din.readInt();
-			length = din.readInt();
+			//length = din.readInt();
 			this.hops = new int[length];
 			if (hops.length > 0) {
 				for (int i = 0; i < length; i++)

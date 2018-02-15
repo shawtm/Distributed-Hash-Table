@@ -10,6 +10,7 @@ public class TCPConnection {
 	private TCPReceiver rec;
 	private TCPSender send;
 	private Type type;
+	private boolean closed = false;
 	
 	public enum Type {SENDER, RECEIVER, MESSAGING_TO_REGISTRY, REGISTRY_TO_MESSAGING};
 	
@@ -34,10 +35,20 @@ public class TCPConnection {
 		//TODO add checks for this not being a receiving thread
 		this.send.addToSend(event);
 	}
-	public void close() {
+	public synchronized void close() {
 		// receivers will close when senders close (maybe?)
-		this.send.interrupt();
-		this.rec.interrupt();
+		if (closed == false) {
+			if(this.send.isAlive()) {
+				System.out.println("[Conn] Closing Sender");
+				this.send.interrupt();
+			}
+			if(this.rec.isAlive()) {
+				System.out.println("[Conn] Closing Receiver");
+				this.rec.interrupt();
+				//this.rec.close();
+			}
+			closed = true;
+		}
 	}
 	public int getPort() {
 		return this.rec.getPort();

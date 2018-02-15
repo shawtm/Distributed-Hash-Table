@@ -13,7 +13,7 @@ public class TCPConnectionsCache extends Thread {
 	protected ArrayList<TCPConnection> receivers;
 	protected ArrayList<TCPConnection> senders;
 	private ArrayList<TCPConnection> newConns;
-	protected TCPConnection registryConn;
+	protected TCPConnection registryConn = null;
 	protected TCPServerThread server;
 	private Type type;
 	//blocking queue?
@@ -68,15 +68,20 @@ public class TCPConnectionsCache extends Thread {
 			}
 		}
 		//stop server
-		System.out.println("Shutting down server..");
+		//System.out.println("Shutting down server..");
 		server.interrupt();
 		server.shutdown();
 		System.out.println("Server Shutdown successfully");
 		//close sockets
-		this.registryConn.close();
+		if (this.type != Type.REGISTRY && this.registryConn != null) {
+			System.out.println("[Cache] Closing Registry Connection!");
+			this.registryConn.close();
+		}
+		System.out.println("[Cache] Closing senders!");
 		for(TCPConnection conn: senders) {
 			conn.close();
 		}
+		System.out.println("[Cache] Closing Receivers!");
 		//shouldnt need this as the connections should close when the senders close
 		for(TCPConnection conn: receivers) {
 			conn.close();
@@ -91,7 +96,8 @@ public class TCPConnectionsCache extends Thread {
 	public ArrayList<TCPConnection> getNewConns(){
 		return this.newConns;
 	}
-	public void removeConnection(TCPConnection conn) {
+	public synchronized void removeConnection(TCPConnection conn) {
+		conn.close();
 		this.senders.remove(conn);
 	}
 }
