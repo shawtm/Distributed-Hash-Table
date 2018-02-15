@@ -66,9 +66,9 @@ public class OverlayNodeSendsDeregistration extends Protocol {
 		}
 		int elementLength = identifierBytes.length;
 		try {
-			dout.writeInt(this.type);
+			dout.write(this.type);
 			dout.writeInt(elementLength);
-			dout.write(identifierBytes);
+			dout.write(identifierBytes, 0, elementLength);
 			dout.writeInt(this.port);
 			dout.writeInt(id);
 			dout.flush();
@@ -87,7 +87,7 @@ public class OverlayNodeSendsDeregistration extends Protocol {
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		try {
-			type = (byte) din.readInt();
+			type = (byte) din.read();
 			length = din.readInt();
 			ip = new byte[length];
 			din.readFully(ip);

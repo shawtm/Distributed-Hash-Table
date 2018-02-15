@@ -54,7 +54,7 @@ public class OverlayNodeSendsData extends Protocol {
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		try {
-			dout.writeInt(this.type);
+			dout.write(this.type);
 			dout.writeInt(this.destID);
 			dout.writeInt(this.sourceID);
 			dout.writeInt(this.payload);
@@ -79,7 +79,7 @@ public class OverlayNodeSendsData extends Protocol {
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		try {
-			type = (byte) din.readInt();
+			type = (byte) din.read();
 			this.destID = din.readInt();
 			this.sourceID = din.readInt();
 			this.payload = din.readInt();

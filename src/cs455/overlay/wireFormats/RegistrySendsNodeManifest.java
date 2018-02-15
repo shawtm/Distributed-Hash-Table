@@ -54,12 +54,12 @@ public class RegistrySendsNodeManifest extends Protocol {
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		try {
-			dout.writeInt(this.type);
+			dout.write(this.type);
 			dout.writeInt(this.size);
 			for (int i = 0; i < this.size; i++) {
 				dout.writeInt(this.ids[i]);
-				dout.write(this.ips[i].length);
-				dout.write(this.ips[i]);
+				dout.writeInt(this.ips[i].length);
+				dout.write(this.ips[i],0, ips[i].length);
 				dout.writeInt(this.ports[i]);
 			}
 			dout.write(this.nodes.length);
@@ -81,7 +81,7 @@ public class RegistrySendsNodeManifest extends Protocol {
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		try {
-			type = (byte) din.readInt();
+			type = (byte) din.read();
 			size = (byte) din.readInt();
 			this.ids = new int[size];
 			this.ips = new byte[size][];

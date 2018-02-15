@@ -71,7 +71,7 @@ public class OverlayNodeReportsTrafficSummary extends Protocol {
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		try {
-			dout.writeInt(this.type);
+			dout.write(this.type);
 			dout.writeInt(id);
 			dout.writeInt(packetsSent);
 			dout.writeInt(packetsRelayed);
@@ -94,7 +94,7 @@ public class OverlayNodeReportsTrafficSummary extends Protocol {
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		try {
-			type = (byte) din.readInt();
+			type = (byte) din.read();
 			id = din.readInt();
 			packetsSent = din.readInt();
 			packetsRelayed = din.readInt();

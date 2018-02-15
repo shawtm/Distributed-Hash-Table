@@ -15,6 +15,7 @@ import cs455.overlay.wireFormats.OverlayNodeReportsTrafficSummary;
 import cs455.overlay.wireFormats.OverlayNodeSendsDeregistration;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireFormats.Protocol;
+import cs455.overlay.wireFormats.RegistryReportsDeregistrationStatus;
 import cs455.overlay.wireFormats.RegistryReportsRegistrationStatus;
 import cs455.overlay.wireFormats.RegistryRequestsTaskInitiate;
 import cs455.overlay.wireFormats.RegistryRequestsTrafficSummary;
@@ -140,14 +141,18 @@ public class Registry extends Node {
 	private void deregister(OverlayNodeSendsDeregistration on) {
 		//TODO add checks
 		System.out.println("Node: " + on.getID() + " requested to be deregistered!");
-		this.registeredIDs.remove(on.getID());
+		this.registeredIDs.remove((Integer) on.getID());
 		TCPConnection conn = table.getConnection(on.getID());
+		RegistryReportsDeregistrationStatus event = new RegistryReportsDeregistrationStatus
+				(Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS, on.getID(), "successfully deregistered node " + (this.registeredIDs.size() - 1) + " nodes left in overlay");
+		conn.sendData(event);
 		this.table.deregisterNode(on.getID());
 		this.connections.removeConnection(conn);
 	}
 	private void register(int port, byte[] ipAddress){
 		int id = addID();
 		//find connection
+		System.out.println("Registering a node!");
 		TCPConnection conn = null;
 		ArrayList<TCPConnection> coons = this.connections.getNewConns();
 		for (TCPConnection con: coons) {
@@ -171,15 +176,18 @@ public class Registry extends Node {
 		//Register Node
 		table.registerNode(id, port, ipAddress, conn);
 		// TODO send back id
+		System.out.println("Sending Registration Status");
 		RegistryReportsRegistrationStatus re = new RegistryReportsRegistrationStatus
 				(Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS, id, ("Registration Successful! " + this.registeredIDs.size() + " nodes registered!"));
 		conn.sendData(re);
 	}
 	
-	public void degregister(int id){
-		//remove id form registeredIDs
-		table.deregisterNode(id);
-	}
+//	public void degregister(int id){
+//		
+//		//remove id form registeredIDs
+//		table.deregisterNode(id);
+//		
+//	}
 	public void printRoutingTables() {
 		for (int i = 0; i < this.registeredIDs.size(); i++) {
 			System.out.println("Node " + registeredIDs.get(i) + "has the following nodes in its routing table: ");

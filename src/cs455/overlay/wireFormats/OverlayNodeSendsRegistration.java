@@ -16,9 +16,9 @@ public class OverlayNodeSendsRegistration extends Protocol {
 	private byte[] ip;
 	private int port;
 	
-	public OverlayNodeSendsRegistration(byte type, int length, byte[] ip, int port) {
+	public OverlayNodeSendsRegistration(byte type, byte[] ip, int port) {
 		this.type = type;
-		this.length = length;
+		this.length = ip.length;
 		this.ip = ip;
 		this.port = port;
 	}
@@ -61,11 +61,11 @@ public class OverlayNodeSendsRegistration extends Protocol {
 //		}
 //		int elementLength = identifierBytes.length;
 		try {
-			dout.writeInt(this.type);
+			dout.write(this.type);
 //			dout.writeInt(elementLength);
 //			dout.write(identifierBytes);
-			dout.write(ip.length);
-			dout.write(ip);
+			dout.writeInt(ip.length);
+			dout.write(ip, 0, ip.length);
 			dout.writeInt(this.port);
 			dout.flush();
 			marshalledBytes = baOutputStream.toByteArray();
@@ -83,7 +83,7 @@ public class OverlayNodeSendsRegistration extends Protocol {
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		try {
-			type = (byte) din.readInt();
+			type = (byte) din.read();
 			length = din.readInt();
 			ip = new byte[length];
 			din.readFully(ip);

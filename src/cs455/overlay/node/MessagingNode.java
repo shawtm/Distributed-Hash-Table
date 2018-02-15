@@ -32,18 +32,20 @@ public class MessagingNode extends Node {
 	private int packetsSent;
 	private int packetsRouted;
 	private int packetsReceived;
+	private boolean exit = false;
 	
 	public MessagingNode(String ip, int port){
 		super();
 		this.connections = new TCPConnectionsCache(this.server, this.events, TCPConnectionsCache.Type.MESSAGINGNODE);
+		this.connections.start();
 		MessagingParser parser = new MessagingParser(this);
-		register(ip, port);
 		rt = new RoutingTable();
+		register(ip, port);
 		parser.start();
 	}
 	@Override
 	public void run() {
-		while(!interrupted()) {
+		while(!interrupted() && !exit ) {
 			try {
 				Event ev = this.events.take();
 				switch (ev.getType()) {
@@ -51,7 +53,7 @@ public class MessagingNode extends Node {
 					this.finishRegistration(ev);
 					break;
 				case Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS:
-					this.interrupt();
+					this.exit = true;
 					break;
 				case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
 					this.setupOverlay(ev);
@@ -73,7 +75,9 @@ public class MessagingNode extends Node {
 				e.printStackTrace();
 			}
 		}
-		this.quit();
+		System.out.println("Interrupting Connections!");
+		//close connections
+		this.connections.interrupt();
 	}
 	private void sendRegistryTraffic() {
 		this.printCounters();
@@ -172,9 +176,7 @@ public class MessagingNode extends Node {
 	public void quit(){
 		//deregister
 		this.deregister();
-		//close connections
-		this.connections.interrupt();
-		System.out.println("Exiting now");
+		System.out.println("Sending Deregistration Request...");
 	}
 	public void printCounters() {
 		System.out.println("Packets Sent: " + this.packetsSent + "Packets Routed: " + this.packetsRouted + 
@@ -184,7 +186,7 @@ public class MessagingNode extends Node {
 		System.out.println("Deregistering now...");
 		int thisPort = this.connections.getPort();
 		byte[] thisIP = this.connections.getIP();
-		Event e = new OverlayNodeSendsDeregistration(Protocol.OVERLAY_NODE_SENDS_REGISTRATION, thisIP.length, thisIP, thisPort, this.id);
+		Event e = new OverlayNodeSendsDeregistration(Protocol.OVERLAY_NODE_SENDS_DEREGISTRATION, thisIP.length, thisIP, thisPort, this.id);
 		rt.sendDataToRegistry(e);
 	}
 	private void register(String ip, int port){
@@ -199,7 +201,7 @@ public class MessagingNode extends Node {
 			//create and send event to register with registry\
 			int thisPort = this.connections.getPort();
 			byte[] thisIP = this.connections.getIP();
-			Event e = new OverlayNodeSendsRegistration(Protocol.OVERLAY_NODE_SENDS_REGISTRATION, thisIP.length, thisIP, thisPort);
+			Event e = new OverlayNodeSendsRegistration(Protocol.OVERLAY_NODE_SENDS_REGISTRATION, thisIP, thisPort);
 			rt.sendDataToRegistry(e);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block

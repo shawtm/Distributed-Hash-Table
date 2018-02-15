@@ -11,30 +11,31 @@ public class EventFactory {
 	public static EventFactory getInstance() {
 		return factory;
 	}
-	public static Event getEvent(byte[] bytes) {
+	public synchronized static Event getEvent(byte[] bytes) {
+		System.out.println("[EventFatory] type is " + bytes[0]);
 		switch (bytes[0]) {
 		case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
-			return null;
+			return new OverlayNodeSendsRegistration(bytes);
 		case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
-			return null;
+			return new RegistryReportsRegistrationStatus(bytes);
 		case Protocol.OVERLAY_NODE_SENDS_DEREGISTRATION:
-			return null;
+			return new OverlayNodeSendsDeregistration(bytes);
 		case Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS:
-			return null;
+			return new RegistryReportsDeregistrationStatus(bytes);
 		case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
-			return null;
+			return new RegistrySendsNodeManifest(bytes);
 		case Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS:
-			return null;
+			return new NodeReportsOverlaySetupStatus(bytes);
 		case Protocol.REGISTRY_REQUESTS_TASK_INITIATE:
-			return null;
+			return new RegistryRequestsTaskInitiate(bytes);
 		case Protocol.OVERLAY_NODE_SENDS_DATA:
-			return null;
+			return new OverlayNodeSendsData(bytes);
 		case Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED:
-			return null;
+			return new OverlayNodeReportsTaskFinished(bytes);
 		case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
-			return null;
+			return new RegistryRequestsTrafficSummary();
 		case Protocol.OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY:
-			return null;
+			return new OverlayNodeReportsTrafficSummary(bytes);
 		}
 		return null;
 	}

@@ -24,10 +24,11 @@ public class TCPSender extends Thread {
 		while(!interrupted()) {
 			try {
 				//maybe do a wait notify here
-				dout.write(toSend.take().getBytes());
+				Event e = toSend.take();
+				dout.writeInt(e.getBytes().length);
+				dout.write(e.getBytes(), 0 , e.getBytes().length);
+				dout.flush();
 			} catch (IOException | InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 	}
@@ -37,8 +38,6 @@ public class TCPSender extends Thread {
 			//maybe do a wait notify here
 			toSend.put(event);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
 	}

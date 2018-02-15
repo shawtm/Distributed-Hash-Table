@@ -51,12 +51,13 @@ public class OverlayNodeReportsTaskFinished extends Protocol {
 	@Override
 	public byte[] marshallBytes() {
 		byte[] marshalledBytes = null;
+		length = ip.length;
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		try {
-			dout.writeInt(this.type);
+			dout.write(this.type);
 			dout.writeInt(length);
-			dout.write(ip);
+			dout.write(ip, 0, length);
 			dout.writeInt(this.port);
 			dout.writeInt(this.id);
 			dout.flush();
@@ -75,7 +76,7 @@ public class OverlayNodeReportsTaskFinished extends Protocol {
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		try {
-			type = (byte) din.readInt();
+			type = (byte) din.read();
 			length = din.readInt();
 			ip = new byte[length];
 			din.readFully(ip);

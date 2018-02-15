@@ -46,10 +46,10 @@ public class RegistryReportsRegistrationStatus extends Protocol {
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		try {
-			dout.writeInt(this.type);
+			dout.write(this.type);
 			dout.writeInt(this.id);
 			dout.writeInt(this.length);
-			dout.write(this.info.getBytes());
+			dout.write(this.info.getBytes(), 0, this.length);
 			dout.flush();
 			marshalledBytes = baOutputStream.toByteArray();
 			baOutputStream.close();
@@ -66,7 +66,7 @@ public class RegistryReportsRegistrationStatus extends Protocol {
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		try {
-			type = (byte) din.readInt();
+			type = (byte) din.read();
 			id = din.readInt();
 			length = din.readInt();
 			information = new byte[length];

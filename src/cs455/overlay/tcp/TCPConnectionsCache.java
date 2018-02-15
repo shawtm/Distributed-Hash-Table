@@ -2,6 +2,7 @@ package cs455.overlay.tcp;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -51,19 +52,19 @@ public class TCPConnectionsCache extends Thread {
 		// poll server for receiver
 		while(!interrupted()) {
 			try {
-				if(this.type == Type.MESSAGINGNODE)
-					receivers.add(new TCPConnection(this.server.getSocket(), this.events, TCPConnection.Type.RECEIVER));
-				if(this.type == Type.REGISTRY) {
-					TCPConnection newconn =new TCPConnection(this.server.getSocket(), this.events, TCPConnection.Type.REGISTRY_TO_MESSAGING);
+				Socket s = this.server.getSocket();
+				if(this.type == Type.MESSAGINGNODE && !interrupted()) {
+					receivers.add(new TCPConnection(s , this.events, TCPConnection.Type.RECEIVER));
+				}
+				if(this.type == Type.REGISTRY && !interrupted()) {
+					TCPConnection newconn =new TCPConnection(s, this.events, TCPConnection.Type.REGISTRY_TO_MESSAGING);
 					senders.add(newconn);
 					this.newConns.add(newconn);
+					System.out.println("created new Connection to node");
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				break;
 			}
 		}
 		//stop server
@@ -72,13 +73,14 @@ public class TCPConnectionsCache extends Thread {
 		server.shutdown();
 		System.out.println("Server Shutdown successfully");
 		//close sockets
-//		for(TCPConnection conn: senders) {
-//			conn.close();
-//		}
+		this.registryConn.close();
+		for(TCPConnection conn: senders) {
+			conn.close();
+		}
 		//shouldnt need this as the connections should close when the senders close
-//		for(TCPConnection conn: receivers) {
-//			conn.close();
-//		}
+		for(TCPConnection conn: receivers) {
+			conn.close();
+		}
 	}
 	public byte[] getIP() {
 		return this.ip;

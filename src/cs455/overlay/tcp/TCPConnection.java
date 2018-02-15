@@ -37,6 +37,7 @@ public class TCPConnection {
 	public void close() {
 		// receivers will close when senders close (maybe?)
 		this.send.interrupt();
+		this.rec.interrupt();
 	}
 	public int getPort() {
 		return this.rec.getPort();

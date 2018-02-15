@@ -50,10 +50,10 @@ public class NodeReportsOverlaySetupStatus extends Protocol {
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		try {
-			dout.writeInt(this.type);
+			dout.write(this.type);
 			dout.writeInt(this.id);
 			dout.writeInt(this.length);
-			dout.write(info.getBytes());
+			dout.write(info.getBytes(), 0, info.getBytes().length);
 			dout.flush();
 			marshalledBytes = baOutputStream.toByteArray();
 			baOutputStream.close();
@@ -70,7 +70,7 @@ public class NodeReportsOverlaySetupStatus extends Protocol {
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		try {
-			type = (byte) din.readInt();
+			type = (byte) din.read();
 			id = (byte) din.readInt();
 			length = din.readInt();
 			byte[] information = new byte[length];

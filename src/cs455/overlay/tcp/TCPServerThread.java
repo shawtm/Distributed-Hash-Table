@@ -63,8 +63,6 @@ public class TCPServerThread extends Thread {
 		try {
 			server.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 }

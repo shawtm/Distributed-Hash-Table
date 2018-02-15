@@ -40,7 +40,7 @@ public class RegistryRequestsTaskInitiate extends Protocol {
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		try {
-			dout.writeInt(this.type);
+			dout.write(this.type);
 			dout.writeInt(this.number);
 			dout.flush();
 			marshalledBytes = baOutputStream.toByteArray();
@@ -58,7 +58,7 @@ public class RegistryRequestsTaskInitiate extends Protocol {
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(bytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		try {
-			type = (byte) din.readInt();
+			type = (byte) din.read();
 			number = din.readInt();
 			baInputStream.close();
 			din.close();
