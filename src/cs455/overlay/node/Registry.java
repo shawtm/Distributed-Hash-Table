@@ -192,9 +192,9 @@ public class Registry extends Node {
 		for (int i = 0; i < this.registeredIDs.size(); i++) {
 			System.out.println("Node " + registeredIDs.get(i) + "has the following nodes in its routing table: ");
 			for (int j = 0; j < rts.get(i).length; j++) {
-				System.out.println("Node: " + this.registeredIDs.get(i) +
-						"IP address: " + new String (this.table.getEntry(registeredIDs.get(i)).getIpAddress()) +
-						"Port Number: " + this.table.getEntry(registeredIDs.get(i)).getPort());
+				System.out.println("Node: " + rts.get(i)[j] +
+						"IP address: " + new String (this.table.getEntry(rts.get(i)[j]).getIpAddress()) +
+						"Port Number: " + this.table.getEntry(rts.get(i)[j]).getPort());
 			}
 			System.out.println();
 		}

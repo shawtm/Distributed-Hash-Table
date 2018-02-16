@@ -35,6 +35,7 @@ public class RegistryParser extends InteractiveCommandParser {
 				break;
 			case "list-routing-tables":
 				registry.printRoutingTables();
+				break;
 			case "start":
 				registry.start(Integer.parseInt(strs[1]));
 				break;

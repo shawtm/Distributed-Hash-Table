@@ -31,7 +31,7 @@ public class TCPConnection {
 		this.send.start();
 	}
 	
-	public void sendData(Event event){
+	public synchronized void sendData(Event event){
 		//TODO add checks for this not being a receiving thread
 		this.send.addToSend(event);
 	}

@@ -19,6 +19,7 @@ import cs455.overlay.wireFormats.OverlayNodeSendsData;
 import cs455.overlay.wireFormats.OverlayNodeSendsDeregistration;
 import cs455.overlay.wireFormats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireFormats.Protocol;
+import cs455.overlay.wireFormats.RegistryReportsDeregistrationStatus;
 import cs455.overlay.wireFormats.RegistryReportsRegistrationStatus;
 import cs455.overlay.wireFormats.RegistryRequestsTaskInitiate;
 import cs455.overlay.wireFormats.RegistrySendsNodeManifest;
@@ -53,6 +54,8 @@ public class MessagingNode extends Node {
 					this.finishRegistration(ev);
 					break;
 				case Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS:
+					RegistryReportsDeregistrationStatus deg = new RegistryReportsDeregistrationStatus(ev.getBytes());
+					System.out.println(deg.getInfo());
 					this.exit = true;
 					break;
 				case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
@@ -150,7 +153,9 @@ public class MessagingNode extends Node {
 		for(int i = 0; i < ids.length; i++) {
 			try {
 				s = new Socket(InetAddress.getByAddress(ips[i]), ports[i]);
-				rt.addEntry(new RoutingEntry(ids[i], new TCPConnection(s)));
+				TCPConnection conn = new TCPConnection(s);
+				rt.addEntry(new RoutingEntry(ids[i], conn));
+				this.connections.addConn(conn);
 				socketCount++;
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
@@ -181,8 +186,8 @@ public class MessagingNode extends Node {
 		System.out.println("Sending Deregistration Request...");
 	}
 	public void printCounters() {
-		System.out.println("Packets Sent: " + this.packetsSent + "Packets Routed: " + this.packetsRouted + 
-				"Packets Received: " + this.packetsReceived + "Sum of Packets Sent: " + this.sentData + "Sum of Packets Received: " + this.receivedData);
+		System.out.println("Packets Sent: " + this.packetsSent + " Packets Routed: " + this.packetsRouted + 
+				" Packets Received: " + this.packetsReceived + " Sum of Packets Sent: " + this.sentData + " Sum of Packets Received: " + this.receivedData);
 	}
 	private void deregister() {
 		System.out.println("Deregistering now...");

@@ -45,4 +45,7 @@ public class RoutingTable {
 	public void addRegistryConn(TCPConnection re) {
 		this.registry = new RoutingEntry(-1, re);
 	}
+	public void resetConns() {
+		this.table = new ArrayList<>();
+	}
 }

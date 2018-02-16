@@ -34,6 +34,9 @@ public class TCPConnectionsCache extends Thread {
 	public void setRegistryConn(TCPConnection registryConn) {
 		this.registryConn = registryConn;
 	}
+	public void addConn(TCPConnection newconn) {
+		this.senders.add(newconn);
+	}
 	@Override
 	public void run() {
 		// start server thread

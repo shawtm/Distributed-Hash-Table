@@ -26,30 +26,39 @@ public class TCPSender extends Thread {
 			try {
 				//maybe do a wait notify here
 				Event e = toSend.take();
-				dout.writeInt(e.getBytes().length);
-				dout.write(e.getBytes(), 0 , e.getBytes().length);
-				dout.flush();
+				synchronized(this) {
+					System.out.println("[Sender] Type is " + e.getType());
+					dout.writeInt(e.getBytes().length);
+					dout.write(e.getBytes(), 0 , e.getBytes().length);
+					dout.flush();
+				}
+				System.out.println("[Sender] successfully sent!");
 			} catch (IOException e) {
+				exit = true;
+				break;
 			} catch (InterruptedException e1) {
 				exit = true;
+				break;
 				//e1.printStackTrace();
 			}
 		}
-		try {
-			socket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(socket.isClosed()) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		System.out.println("[Sender] Sender is exiting!");
 	}
 	
-	public void close() {
+	public synchronized void close() {
 		exit = true;
 		try {
-			dout.close();
 			if (!socket.isClosed()) {
 				socket.close();
+				dout.close();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -58,7 +67,7 @@ public class TCPSender extends Thread {
 
 	}
 	
-	public void addToSend(Event event) {
+	public synchronized void addToSend(Event event) {
 		try {
 			//maybe do a wait notify here
 			toSend.put(event);
