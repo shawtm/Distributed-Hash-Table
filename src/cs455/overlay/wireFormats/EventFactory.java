@@ -12,7 +12,7 @@ public class EventFactory {
 		return factory;
 	}
 	public synchronized static Event getEvent(byte[] bytes) {
-		System.out.println("[EventFatory] type is " + bytes[0]);
+		//System.out.println("[EventFatory] type is " + bytes[0]);
 		switch (bytes[0]) {
 		case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
 			return new OverlayNodeSendsRegistration(bytes);

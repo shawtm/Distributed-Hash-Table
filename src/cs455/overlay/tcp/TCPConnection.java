@@ -42,13 +42,14 @@ public class TCPConnection {
 				if(this.send.isAlive()) {
 					System.out.println("[Conn] Closing Sender");
 					this.send.interrupt();
+					this.send.close();
 				}
 			}
 			if (this.type != Type.SENDER) {
 				if(this.rec.isAlive()) {
 					System.out.println("[Conn] Closing Receiver");
 					this.rec.interrupt();
-					//this.rec.close();
+					this.rec.close();
 				}
 			}
 			closed = true;

@@ -31,12 +31,12 @@ public class TCPReceiver extends Thread {
 		while (socket != null && !interrupted() && !exit) {//socket != null && 
 			try {
 				dataLength = din.readInt();
-				System.out.println("[Receiver] Size is " + dataLength);
+				//System.out.println("[Receiver] Size is " + dataLength);
 				byte[] data = new byte[dataLength];
 				din.readFully(data);
 				try {
 					Event event = EventFactory.getEvent(data);
-					System.out.println("[Receiver] type is " + event.getType());
+					//System.out.println("[Receiver] type is " + event.getType());
 					if(event.getType() == Protocol.OVERLAY_NODE_SENDS_REGISTRATION) {
 						OverlayNodeSendsRegistration on = new OverlayNodeSendsRegistration(event.getBytes());
 						this.port = on.getPort();
@@ -65,7 +65,9 @@ public class TCPReceiver extends Thread {
 	public void close() {
 		try {
 			din.close();
-			//socket.close();
+			if (!socket.isClosed()) {
+				socket.close();
+			}
 			exit = true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

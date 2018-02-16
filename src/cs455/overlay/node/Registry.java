@@ -32,8 +32,8 @@ public class Registry extends Node {
 	private boolean run = true;
 	private int time = 15;
 	
-	public Registry(){
-		super();
+	public Registry(int port){
+		super(port);
 		this.connections = new TCPConnectionsCache(this.server, this.events, TCPConnectionsCache.Type.REGISTRY);
 		this.table = new RegistryTable();
 		RegistryParser parser = new RegistryParser(this);
@@ -290,7 +290,11 @@ public class Registry extends Node {
 		this.time = minutes;
 	}
 	public static void main(String[] args) {
-		Registry r = new Registry();
+		if (args.length != 1) {
+			System.out.println("[Error] Incorrect number of arguments!");
+			return;
+		}
+		Registry r = new Registry(Integer.parseInt(args[0]));
 		r.start();
 	}
 	private class TrafficSummary{

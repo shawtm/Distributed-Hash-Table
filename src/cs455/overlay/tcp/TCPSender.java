@@ -44,6 +44,20 @@ public class TCPSender extends Thread {
 		System.out.println("[Sender] Sender is exiting!");
 	}
 	
+	public void close() {
+		exit = true;
+		try {
+			dout.close();
+			if (!socket.isClosed()) {
+				socket.close();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
 	public void addToSend(Event event) {
 		try {
 			//maybe do a wait notify here

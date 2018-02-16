@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -20,6 +21,20 @@ public class TCPServerThread extends Thread {
 		sockets = new LinkedBlockingQueue<Socket>();
 	}
 	
+	public TCPServerThread(int port) {
+		this.port = port;
+		try {
+			this.server = new ServerSocket(this.port, 0, InetAddress.getLocalHost());
+		} catch (UnknownHostException e) {
+			System.out.println("[Error] Unknown host");
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		sockets = new LinkedBlockingQueue<Socket>();
+	}
+
 	@Override
 	public void run() {
 		System.out.println("Starting server on port: "+ this.port);

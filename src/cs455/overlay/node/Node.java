@@ -24,4 +24,8 @@ public class Node extends Thread {
 		}
 		this.events = new LinkedBlockingQueue<Event>();
 	}
+	public Node(int port){
+		this.server = new TCPServerThread(port);
+		this.events = new LinkedBlockingQueue<Event>();
+	}
 }

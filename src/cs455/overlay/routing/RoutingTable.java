@@ -8,10 +8,14 @@ import cs455.overlay.wireFormats.Event;
 public class RoutingTable {
 	private ArrayList<RoutingEntry> table;
 	private RoutingEntry registry;
+	private int[] nodes;
 
 	public RoutingTable(){
 		this.table = new ArrayList<RoutingEntry>();
 		this.registry = null;
+	}
+	public void addNodes(int[] nodes) {
+		this.nodes = nodes;
 	}
 	public void addEntry(RoutingEntry newEntry){
 		table.add(newEntry);
@@ -27,8 +31,8 @@ public class RoutingTable {
 			}
 		}
 		//hasnt sent packet yet if here
-		int closest = -1;
-		for (int i = 0; i < table.size(); i++) {
+		int closest = 0;
+		for (int i = 1; i < table.size(); i++) {
 			if(table.get(i).getID() <= destination)
 				closest = i;
 		}
