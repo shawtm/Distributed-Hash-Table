@@ -1,6 +1,14 @@
 README.txt for Programming Component 1
 Tom Shaw
 Cs455
+
+####################################################################################################
+
+Information:
+
+This is my implementation of a simplified Distributed Hash Table. The main concept is to get a number of messaging nodes to communicate in a round robin fashion that enables the nodes to communicate at times indirectly. This is accomplished by every messaging node communicating with a central registry. On startup each messaging node will attempt to register themselves with the registry. After a few nodes have registered the registry can then create an overlay which will give every Messaging node the complete list of nodes in the system, and ip and port information for nodes that are varying distances away. The registry can then be instructed to start an experiment which will instruct the messaging nodes to send a number of random integers to random nodes in the system. Note that each node will not have information to communicate with every other node, to solve this problem nodes will route packets as close to the destination node as they can. After sending all meesage the nodess will inform the registry who will ensure the correctness of all the messages sent.
+There are two Mains found in this repo, one in Registry and one in Messaging Node. Both are meant to be running concurrently, with a single instance of Registry running and multiple versions of Messaging Nodes running.
+
 ####################################################################################################
 
 Important information:
@@ -12,6 +20,8 @@ Included is a makefile that only has the two operations "make all" and "make cle
 Proper usage of the program involves using any of the commands that are found in the assignment description. In addition the programs Registry and Messaging Node must be started using the commands given in section 5.
 
 In order to gracefully exit the program please use the exit-overlay command on each messaging node which will deregister and close the programs. In order to close the Registry program gracefully the command "exit" will close all connections and the node itself. NOTE: this does not close the messaging nodes, so the messaging nodes should be closed before exiting the registry.
+
+####################################################################################################
 
 Description of Classes:
 
